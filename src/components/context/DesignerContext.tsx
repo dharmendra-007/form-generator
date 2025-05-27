@@ -34,6 +34,7 @@ export default function DesignerContextProvider({children} : {children : ReactNo
 
   return <DesignerContext.Provider value={{
     elements,
+    setElements,
     addElement,
     removeElement,
     selectedElement,

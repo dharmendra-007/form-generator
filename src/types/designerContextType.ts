@@ -3,6 +3,7 @@ import { FormElementInstance } from "./formElementType"
 
 export type DesignerContextType = {
   elements : FormElementInstance[];
+  setElements: Dispatch<SetStateAction<FormElementInstance[]>>;
   addElement : (index : number , element : FormElementInstance) => void;
   removeElement : (id : string) => void;
 
