@@ -1,7 +1,8 @@
 import FormBuilder from '@/components/FormBuilder'
 import React from 'react'
-import VisitBtn from '@/components/VisitBtn';
-import FormLinkShare from '@/components/formLinkShare';
+// import VisitBtn from '@/components/VisitBtn';
+// import FormLinkShare from '@/components/formLinkShare';
+import { formatDistance } from 'date-fns';
 
 function BuilderPage({params}:{params:{
   id: string
@@ -124,7 +125,7 @@ return (
 
 
 
-function RowCell({ type, value }: { type: ElementsType; value: string }) {
-  let node: ReactNode = value;
-  return <td>{node}</td>;
-}
+// function RowCell({ type, value }: { type: ElementsType; value: string }) {
+//   let node: ReactNode = value;
+//   return <td>{node}</td>;
+// }

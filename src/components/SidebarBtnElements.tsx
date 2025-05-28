@@ -4,7 +4,6 @@ import React from 'react'
 import { FormElement } from '@/types/formElementType'
 import { Button } from './ui/button'
 import { useDraggable } from '@dnd-kit/core'
-import { FormElements } from './FormElements'
 import { cn } from '@/lib/utils'
 
 function SidebarBtnElements({ formElement }: { formElement: FormElement }) {
@@ -31,6 +30,7 @@ function SidebarBtnElements({ formElement }: { formElement: FormElement }) {
 
 export function SidebarBtnElementsDragOverlay({ formElement }: { formElement: FormElement }) {
   const { Icon, label } = formElement.designerButtonElement
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const draggable = useDraggable({
     id: `deginer-button-${formElement.type}`,
     data: {

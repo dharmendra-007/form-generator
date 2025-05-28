@@ -1,4 +1,4 @@
-export type ElementsType = "TextField" | "TitleField";
+export type ElementsType = "TextField" | "TitleField"  | "SubtitleField" |"ParagraphField" | "SeparatorField" | "NumberField" | "TextAreaField" | "SelectField" |  "CheckboxField" | "EmailField";
 
 export type SubmitFunction = (key: string, value: string) => void;
 
@@ -27,7 +27,7 @@ export type FormElement = {
 export type FormElementInstance = {
   id: string;
   type: ElementsType;
-  extraAttributes?: Record<string, any>;
+  extraAttributes?: Record<string, unknown>;
 };
 
 export type FormElementsType = {
@@ -116,5 +116,14 @@ export type CheckboxFieldInstance = FormElementInstance & {
     label: string;
     helperText: string;
     required: boolean;
+  };
+};
+export type EmailFieldInstance = FormElementInstance & {
+  type: "EmailField";
+  extraAttributes: {
+    label: string;
+    helperText: string;
+    required: boolean;
+    placeholder: string;
   };
 };

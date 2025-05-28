@@ -1,12 +1,10 @@
 "use client";
 
 import React from "react";
-import { MdNumbers } from "react-icons/md"; 
+import { MdEmail } from "react-icons/md";
 import { ElementsType, FormElement, FormElementInstance } from "@/types/formElementType";
 import { Label } from "../ui/label";
-import { Checkbox } from "../ui/checkbox";
 import { Input } from "../ui/input";
-import { Switch } from "../ui/switch";
 import useDesigner from "@/hooks/useDesigner";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
@@ -19,24 +17,27 @@ import {
   FormControl,
   FormMessage,
 } from "@/components/ui/form";
+import { Switch } from "@radix-ui/react-switch";
 
-const type: ElementsType = "CheckboxField";
+const type: ElementsType = "EmailField";
 
 const extraAttributes = {
-  label: "Accept Terms and Conditions",
-  helperText: "You must agree to proceed",
-  required: true,
+  label: "Email",
+  placeholder: "your@email.com",
+  helperText: "Enter your email address",
+  required: false,
 };
 
 const propertiesSchema = z.object({
   label: z.string().min(2).max(50),
+  placeholder: z.string().max(100),
   helperText: z.string().max(200),
   required: z.boolean(),
 });
 
 type PropertiesFormSchemaType = z.infer<typeof propertiesSchema>;
 
-export const CheckboxFieldFormElement: FormElement = {
+export const EmailFieldFormElement: FormElement = {
   type,
   construct: (id: string) => ({
     id,
@@ -44,18 +45,18 @@ export const CheckboxFieldFormElement: FormElement = {
     extraAttributes,
   }),
   designerButtonElement: {
-    Icon: MdNumbers,
-    label: "Checkbox Field",
+    Icon: MdEmail,
+    label: "Email Field",
   },
   designerComponent: DesignerComponent,
   formComponent: FormComponent,
   propertiesComponent: PropertiesComponent,
-  validate: (formElement: FormElementInstance, currentValue: boolean) => {
+  validate: (formElement: FormElementInstance, currentValue: string) => {
     const element = formElement as CustomInstance;
     if (element.extraAttributes.required) {
-      return currentValue;
+      return currentValue.length > 0 && /^\S+@\S+\.\S+$/.test(currentValue);
     }
-    return true;
+    return currentValue ? /^\S+@\S+\.\S+$/.test(currentValue) : true;
   },
 };
 
@@ -65,15 +66,25 @@ type CustomInstance = FormElementInstance & {
 
 function DesignerComponent({ elementInstance }: { elementInstance: FormElementInstance }) {
   const element = elementInstance as CustomInstance;
-  const { label } = element.extraAttributes;
+  const { label, required, placeholder } = element.extraAttributes;
 
   return (
     <div className="flex flex-col gap-2 w-full">
       <Label>
         {label}
-      
+        {required && <span className="text-red-500 ml-1">*</span>}
       </Label>
-      <Checkbox disabled />
+      <Input 
+        type="email" 
+        readOnly 
+        disabled 
+        placeholder={placeholder} 
+      />
+      {element.extraAttributes.helperText && (
+        <p className="text-muted-foreground text-[0.8rem]">
+          {element.extraAttributes.helperText}
+        </p>
+      )}
     </div>
   );
 }
@@ -85,13 +96,13 @@ function FormComponent({
   defaultValue,
 }: {
   elementInstance: FormElementInstance;
-  submitValue?: (key: string, value: boolean) => void;
+  submitValue?: (key: string, value: string) => void;
   isInvalid?: boolean;
-  defaultValue?: boolean;
+  defaultValue?: string;
 }) {
   const element = elementInstance as CustomInstance;
-  const { label, required } = element.extraAttributes;
-  const [checked, setChecked] = React.useState(defaultValue || false);
+  const { label, required, placeholder, helperText } = element.extraAttributes;
+  const [value, setValue] = React.useState(defaultValue || "");
   const [error, setError] = React.useState(false);
 
   React.useEffect(() => {
@@ -99,22 +110,32 @@ function FormComponent({
   }, [isInvalid]);
 
   return (
-    <div className="flex flex-row gap-2 w-full">
-  <Label className={error ? "text-red-500" : ""}>
-    {label}
-    {required}
-  </Label>
-  <Checkbox
-    checked={checked}
-    onCheckedChange={(checked) => {
-      setChecked(!!checked);
-      if (submitValue) submitValue(element.id, !!checked);
-    }}
-    className={error ? "border-red-500" : ""}
-  />
-  {error && <p className="text-red-500 text-[0.8rem]">This field is required</p>}
-</div>
-
+    <div className="flex flex-col gap-2 w-full">
+      <Label className={error ? "text-red-500" : ""}>
+        {label}
+        {required && <span className="text-red-500 ml-1">*</span>}
+      </Label>
+      <Input
+        type="email"
+        value={value}
+        placeholder={placeholder}
+        onChange={(e) => {
+          setValue(e.target.value);
+          if (submitValue) submitValue(element.id, e.target.value);
+        }}
+        className={error ? "border-red-500" : ""}
+      />
+      {helperText && (
+        <p className={`text-[0.8rem] ${error ? "text-red-500" : "text-muted-foreground"}`}>
+          {helperText}
+        </p>
+      )}
+      {error && (
+        <p className="text-red-500 text-[0.8rem]">
+          {required ? "This field is required and must be a valid email" : "Please enter a valid email"}
+        </p>
+      )}
+    </div>
   );
 }
 
@@ -126,6 +147,7 @@ function PropertiesComponent({ elementInstance }: { elementInstance: FormElement
     mode: "onBlur",
     defaultValues: {
       label: element.extraAttributes.label,
+      placeholder: element.extraAttributes.placeholder,
       helperText: element.extraAttributes.helperText,
       required: element.extraAttributes.required,
     },
@@ -160,22 +182,32 @@ function PropertiesComponent({ elementInstance }: { elementInstance: FormElement
             </FormItem>
           )}
         />
-        {/* <FormField
+        <FormField
+          control={form.control}
+          name="placeholder"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Placeholder</FormLabel>
+              <FormControl>
+                <Input {...field} onKeyDown={(e) => e.key === "Enter" && e.currentTarget.blur()} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
           control={form.control}
           name="helperText"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Helper Text</FormLabel>
               <FormControl>
-                <Input
-                  {...field}
-                  onKeyDown={(e) => e.key === "Enter" && e.currentTarget.blur()}
-                />
+                <Input {...field} onKeyDown={(e) => e.key === "Enter" && e.currentTarget.blur()} />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
-        /> */}
+        />
         <FormField
           control={form.control}
           name="required"

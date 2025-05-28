@@ -1,5 +1,4 @@
-import React from "react"
-import { ElementsType, FormElement, FormElementsType } from "@/types/formElementType"
+import { FormElementsType } from "@/types/formElementType"
 import { TextFieldFormElements } from "./fields/TextField"
 import { TitleFieldFormElement } from "./fields/TitleField"
 import { SubtitleFieldFormElement } from "./fields/SubTitleField"
@@ -9,6 +8,7 @@ import { NumberFieldFormElement } from "./fields/NumberField";
 import { TextAreaFieldFormElement } from "./fields/TextAreaField";
 import { SelectFieldFormElement } from "./fields/SelectField";
 import { CheckboxFieldFormElement } from "./fields/CheckboxField";
+import { EmailFieldFormElement } from "./fields/EmailField";
 
 
 export const FormElements: FormElementsType = {
@@ -19,6 +19,7 @@ export const FormElements: FormElementsType = {
   SeparatorField: SeparatorFieldFormElement,
   NumberField: NumberFieldFormElement,
   TextAreaField: TextAreaFieldFormElement,
-SelectField: SelectFieldFormElement,       
+  SelectField: SelectFieldFormElement,       
   CheckboxField: CheckboxFieldFormElement, 
+  EmailField: EmailFieldFormElement,
 }

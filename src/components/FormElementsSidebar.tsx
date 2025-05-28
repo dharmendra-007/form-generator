@@ -28,7 +28,8 @@ function FormElementsSidebar() {
           <SidebarBtnElement formElement={FormElements.NumberField} />
         <SidebarBtnElement formElement={FormElements.TextAreaField} />
         <SidebarBtnElement formElement={FormElements.SelectField} />      
-         <SidebarBtnElement formElement={FormElements.CheckboxField} />  
+         <SidebarBtnElement formElement={FormElements.CheckboxField} /> 
+          <SidebarBtnElement formElement={FormElements.EmailField} /> 
       </div>
     </div>
   );
