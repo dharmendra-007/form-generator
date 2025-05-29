@@ -1,8 +1,8 @@
 import React,{ReactNode} from "react";
-function layout({ childern }: { childern: ReactNode }) {
+async function Layout({ children }: { children: ReactNode }) {
     return <div className="flex w-full flex-grow mx-auto">
-        {childern}
+        {children}
     </div>
 }
 
-export default layout
+export default Layout

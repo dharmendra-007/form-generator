@@ -1,7 +1,7 @@
 "use client"
 
 
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { formSchemaType } from '@/schemas/CreateFormSchema';
 import PreviewDialogButton from './PreviewDialogButton';
 import SaveFormButton from './SaveFormButton';
@@ -15,7 +15,6 @@ import {
   useSensors,
 } from '@dnd-kit/core';
 import DragOverlayWrapper from './DragOverlayWrapper';
-import useDesigner from '@/hooks/useDesigner';
 // import { Input } from './ui/input';
 // import { Button } from './ui/button'; 
 // import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -35,8 +34,8 @@ function FormBuilder({form}: {
 })
 
 {    
-  const [isReady, setIsReady] = useState(false);
-  const { setElements } = useDesigner();
+  // const [isReady, setIsReady] = useState(false);
+  // const { setElements } = useDesigner();
   const mouseSensor = useSensor(MouseSensor,{
     activationConstraint : {
       distance: 10,
@@ -50,7 +49,7 @@ function FormBuilder({form}: {
     }
   })
   const sensors = useSensors(mouseSensor , touchSensor)
- 
+
 // useEffect(() => {
 //     if (!form.content) return;
 
@@ -125,8 +124,8 @@ function FormBuilder({form}: {
             <PreviewDialogButton/>
             {!form.published &&
             <>
-            <SaveFormButton id={form.id}/>
-            <PublishFormButton id={form.id}/>
+            <SaveFormButton id={form._id}/>
+            <PublishFormButton id={form._id}/>
             </>}
           </div>
         </nav>

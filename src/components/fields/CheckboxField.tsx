@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { MdNumbers } from "react-icons/md"; 
+import { MdNumbers } from "react-icons/md";
 import { ElementsType, FormElement, FormElementInstance } from "@/types/formElementType";
 import { Label } from "../ui/label";
 import { Checkbox } from "../ui/checkbox";
@@ -50,10 +50,12 @@ export const CheckboxFieldFormElement: FormElement = {
   designerComponent: DesignerComponent,
   formComponent: FormComponent,
   propertiesComponent: PropertiesComponent,
-  validate: (formElement: FormElementInstance, currentValue: boolean) => {
+  validate: (formElement: FormElementInstance, currentValue: string) => {
     const element = formElement as CustomInstance;
+
     if (element.extraAttributes.required) {
-      return currentValue;
+      // convert string to boolean for validation
+      return currentValue === "true";
     }
     return true;
   },
@@ -71,7 +73,7 @@ function DesignerComponent({ elementInstance }: { elementInstance: FormElementIn
     <div className="flex flex-col gap-2 w-full">
       <Label>
         {label}
-      
+
       </Label>
       <Checkbox disabled />
     </div>
@@ -85,13 +87,14 @@ function FormComponent({
   defaultValue,
 }: {
   elementInstance: FormElementInstance;
-  submitValue?: (key: string, value: boolean) => void;
+  submitValue?: (key: string, value: string) => void;  // string value
   isInvalid?: boolean;
-  defaultValue?: boolean;
+  defaultValue?: string;  // string value
 }) {
   const element = elementInstance as CustomInstance;
   const { label, required } = element.extraAttributes;
-  const [checked, setChecked] = React.useState(defaultValue || false);
+  // Convert string to boolean
+  const [checked, setChecked] = React.useState(defaultValue === "true");
   const [error, setError] = React.useState(false);
 
   React.useEffect(() => {
@@ -100,24 +103,22 @@ function FormComponent({
 
   return (
     <div className="flex flex-row gap-2 w-full">
-  <Label className={error ? "text-red-500" : ""}>
-    {label}
-    {required}
-  </Label>
-  <Checkbox
-    checked={checked}
-    onCheckedChange={(checked) => {
-      setChecked(!!checked);
-      if (submitValue) submitValue(element.id, !!checked);
-    }}
-    className={error ? "border-red-500" : ""}
-  />
-  {error && <p className="text-red-500 text-[0.8rem]">This field is required</p>}
-</div>
-
+      <Label className={error ? "text-red-500" : ""}>
+        {label}
+        {required}
+      </Label>
+      <Checkbox
+        checked={checked}
+        onCheckedChange={(checked) => {
+          setChecked(!!checked);
+          if (submitValue) submitValue(element.id, (!!checked).toString()); // boolean to string
+        }}
+        className={error ? "border-red-500" : ""}
+      />
+      {error && <p className="text-red-500 text-[0.8rem]">This field is required</p>}
+    </div>
   );
 }
-
 function PropertiesComponent({ elementInstance }: { elementInstance: FormElementInstance }) {
   const element = elementInstance as CustomInstance;
   const { updateElement } = useDesigner();

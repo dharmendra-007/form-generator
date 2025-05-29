@@ -3,10 +3,10 @@ import React from 'react';
 import VisitBtn from '@/components/VisitBtn';
 import FormLinkShare from '@/components/formLinkShare';
 
-function BuilderPage({ params }: { params: { id: string } }) {
+async function BuilderPage({ params }: { params: Promise<{ id: string }> }) {
   const form = {
-    _id: params.id,
-    id: params.id,
+    _id: (await params).id,
+    id: (await params).id,
     name: 'Zaam-Dox',
     description: 'Savory wraps with buffalo chicken and fresh vegetables.',
     published: false,
@@ -14,7 +14,7 @@ function BuilderPage({ params }: { params: { id: string } }) {
     visits: 266,
     submissions: 280,
     content: '[]',
-    shareUrl: `https://yourdomain.com/forms/${params.id}`, 
+    shareUrl: `https://yourdomain.com/forms/${(await params).id}`, 
   };
 
   return (

@@ -3,24 +3,21 @@
 // import FormSubmitComponent from "@/components/FormSubmitComponent";
 // import { FormElementInstance } from "@/components/FormElements"; 
 
-// type SubmitPageProps = {
-//   params: {
-//     formUrl: string;
-//   };
-// };
+async function SubmitPage({ params }: {params : Promise<{formUrl : string}>}) {
+  // const form = await GETformContentByURL((await params).formUrl); 
 
-// async function SubmitPage({ params }: SubmitPageProps) {
-//   //const form = await GETformContentByURL(params.formUrl); 
+  // if (!form) {
+  //   throw new Error("Form not found");
+  // }
 
-//   if (!form) {
-//     throw new Error("Form not found");
-//   }
+  // const formContent = JSON.parse(form.content) as FormElementInstance[];
 
-//   const formContent = JSON.parse(form.content) as FormElementInstance[];
+  return (
+    // <FormSubmitComponent formUrl={params.formUrl} content={formContent} />
+    <div>
+      {(await params).formUrl}
+    </div>
+  );
+}
 
-//   return (
-//     <FormSubmitComponent formUrl={params.formUrl} content={formContent} />
-//   );
-// }
-
-// export default SubmitPage;
+export default SubmitPage;
