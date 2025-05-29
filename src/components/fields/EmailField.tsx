@@ -17,7 +17,7 @@ import {
   FormControl,
   FormMessage,
 } from "@/components/ui/form";
-import { Switch } from "@radix-ui/react-switch";
+import { Switch } from "../ui/switch";
 
 const type: ElementsType = "EmailField";
 
@@ -217,7 +217,7 @@ function PropertiesComponent({ elementInstance }: { elementInstance: FormElement
                 <FormLabel>Required</FormLabel>
               </div>
               <FormControl>
-                <Switch checked={field.value} onCheckedChange={field.onChange} />
+                <Switch checked={field.value} onCheckedChange={field.onChange}/>
               </FormControl>
             </FormItem>
           )}
