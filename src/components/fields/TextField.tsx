@@ -6,7 +6,7 @@ import { MdTextFields } from "react-icons/md";
 import { Label } from '../ui/label';
 import { Input } from '../ui/input';
 import { textFieldPropertiesSchema, textFieldPropertiesType } from '@/schemas/propertiesSchema';
-import { SubmitErrorHandler, useForm } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
   Form,
@@ -17,7 +17,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form"
-import { Button } from '../ui/button';
+
 import useDesigner from '@/hooks/useDesigner';
 import { Switch } from '../ui/switch';
 import { cn } from '@/lib/utils'; 

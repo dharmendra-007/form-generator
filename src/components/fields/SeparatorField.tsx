@@ -24,7 +24,8 @@ export const SeparatorFieldFormElement: FormElement = {
   validate: () => true, // No validation needed
 };
 
-function DesignerComponent({ elementInstance }: { elementInstance: FormElementInstance }) {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function DesignerComponent({elementInstance}: { elementInstance: FormElementInstance }) {
   return (
     <div className="flex flex-col gap-1 w-full">
       <Label className="text-muted-foreground">Separator</Label>
@@ -33,6 +34,7 @@ function DesignerComponent({ elementInstance }: { elementInstance: FormElementIn
   );
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function FormComponent({ elementInstance }: { elementInstance: FormElementInstance }) {
   return <hr className="my-4 border-muted" />;
 }

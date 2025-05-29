@@ -11,7 +11,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "../ui/input";
-import { Switch } from "../ui/switch"; // ✅ make sure this exists or replace with your switch
+import { Switch } from "../ui/switch"; 
 
 const type: ElementsType = "TextAreaField";
 
@@ -41,7 +41,7 @@ export const TextAreaFieldFormElement: FormElement = {
     extraAttributes,
   }),
   designerButtonElement: {
-    Icon: MdTextFields, // ✅ Using Material icon
+    Icon: MdTextFields, 
     label: "Text Area",
   },
   designerComponent: DesignerComponent,
