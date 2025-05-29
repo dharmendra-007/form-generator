@@ -1,28 +1,25 @@
 import React, { useTransition } from 'react'
 import { Button } from './ui/button';
 import { SaveAll } from 'lucide-react';
-import useDesigner from '@/hooks/useDesigner';
+// import useDesigner from '@/hooks/useDesigner';
 import { toast } from 'sonner';
 
-function SaveFormButton({id}:{id: number}) {
-  const {elements} = useDesigner();
+function SaveFormButton({id}:{id: string}) {
+  // const {elements} = useDesigner();
+  console.log(id)
   const [loading, startTransition]= useTransition();
   
   const updateFormContent = async () =>{
     try{
-      const JsonElements = JSON.stringify(elements);
-      await UpdateFormContent(id ,JsonElements);
-      toast({
-        title:"Success",
+      // const JsonElements = JSON.stringify(elements);
+      // await UpdateFormContent(id ,JsonElements);
+      toast("Success" ,{
         description: "Form content updated successfully",
       });
     } catch (error){
-      toast({
-        title: "Error",
-        description: "Failed to update form content",
-        variant:"destructive",
-        });
-     
+      toast.error("Error", {
+        description: String(error)
+      })
     }
   };
   

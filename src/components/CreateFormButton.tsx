@@ -1,15 +1,12 @@
 "use client";
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Resolver } from "dns";
 import { useForm } from "react-hook-form"
-import { z } from "zod"
 
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -17,10 +14,8 @@ import {
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
-  FormLabel,
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
@@ -28,7 +23,6 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 
 import { Loader } from 'lucide-react';
-import { Toaster } from "@/components/ui/sonner"
 import { toast } from "sonner"
 import { FilePlus2 } from 'lucide-react';
 
@@ -49,7 +43,8 @@ function CreateFormButton() {
       toast.success("Success", {
         description: "Form Created Successfully"
       })
-    } catch(error){
+      console.log(values)
+    } catch{
       toast.error("Error", {
         description: "Something went wrong!"
       })
@@ -68,7 +63,7 @@ function CreateFormButton() {
         <DialogHeader>
           <DialogTitle>Create Your Own Form</DialogTitle>
           <DialogDescription>
-            Make changes to your profile here. Click save when you're done.
+            Make changes to your profile here. Click save when you&aposre done.
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>

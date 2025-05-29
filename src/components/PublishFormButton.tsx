@@ -13,27 +13,27 @@ import{
   AlertDialogTrigger,
 } from './ui/alert-dialog';
 import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
 
 
 
 
 
-function PublishFormButton() {
+function PublishFormButton({id} : {id : string}) {
 const [loading, startTransition]= useTransition();
 const router = useRouter();
-async function publishForm({id}:{id: number}) {
+async function publishForm({id}:{id: string}) {
   try{
-    await PublishForm(id);
-     // toast({
-    //   title: "Sucess",
-    //   description: "Form is available",
-    // });
+    // await PublishForm(id);
+    console.log(id)
+    toast("Sucess" ,{
+      description: "Form is available",
+    });
     router.refresh();
-  } catch(error) {
-    // toast({
-      // title: "Error",
-      // description: "Something went wrong",
-    // });
+  } catch {
+    toast("Error" ,{
+      description: "Something went wrong",
+    });
   }
   
 }
@@ -56,7 +56,7 @@ async function publishForm({id}:{id: number}) {
         disabled={loading}
         onClick={(e) => {
           e.preventDefault();
-          startTransition(publishForm); 
+          startTransition(() => publishForm({ id })); 
         }}
       >
         Proceed {loading && '...'}

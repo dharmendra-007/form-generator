@@ -12,8 +12,6 @@ import { Button } from './ui/button';
 import { Trash2 } from 'lucide-react';
 
 function Designer() {
-  const [element, setElement] = useState<FormElementInstance[]>([])
-
   const { elements, addElement ,removeElement, selectedElement , setSelectedElement} = useDesigner()
 
   const droppable = useDroppable({

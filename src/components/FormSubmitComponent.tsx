@@ -169,7 +169,7 @@ export default function FormSubmitComponent({ formUrl, fields }: FormSubmitCompo
     setError(null);
     
     const isValid = validateForm();
-    if (!isValid) return;
+    if (!isValid) {return};
 
     setIsSubmitting(true);
 
