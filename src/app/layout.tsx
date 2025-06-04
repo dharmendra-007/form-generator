@@ -4,7 +4,9 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import { Toaster } from "sonner";
 import DesignerContextProvider from "@/components/context/DesignerContext";
-import NextTopLoader from "nextjs-toploader"
+import NextTopLoader from "nextjs-toploader";
+import { AuthProvider } from "@/lib/auth-context";
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -30,18 +32,20 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <NextTopLoader/>
-        <DesignerContextProvider>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
-          >
-            {children}
-            <Toaster position="top-right" richColors theme={"system"}/>
-          </ThemeProvider>
-        </DesignerContextProvider>
+        <NextTopLoader />
+        <AuthProvider>
+          <DesignerContextProvider>
+            <ThemeProvider
+              attribute="class"
+              defaultTheme="system"
+              enableSystem
+              disableTransitionOnChange
+            >
+              {children}
+              <Toaster position="top-right" richColors theme={"system"} />
+            </ThemeProvider>
+          </DesignerContextProvider>
+        </AuthProvider>
       </body>
     </html>
   );
