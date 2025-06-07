@@ -3,8 +3,6 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { useAuth } from "@/lib/auth-context";
 import {
   Card,
   CardContent,
@@ -17,41 +15,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Loader } from "lucide-react";
 import Link from "next/link";
+import { useAuth } from "@/hooks/useAuth";
+import { SignInFormData, signInSchema } from "@/schemas/authSchema";
+import API from "@/lib/axios";
+import { toast } from "sonner";
 
-const signUpSchema = z.object({
-  userName: z
-    .string()
-    .min(1, "Name is required")
-    .min(2, "Name must be at least 2 characters")
-    .max(50, "Name must be less than 50 characters"),
-  userEmail: z
-    .string()
-    .min(1, "Email is required")
-    .email("Invalid email format")
-    .refine((email) => email.includes("@"), "Email must contain @ symbol"),
-  userPassword: z
-    .string()
-    .min(1, "Password is required")
-    .min(8, "Password must be at least 8 characters")
-    .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
-    .regex(/[a-z]/, "Password must contain at least one lowercase letter")
-    .regex(/[0-9]/, "Password must contain at least one number")
-    .regex(
-      /[^A-Za-z0-9]/,
-      "Password must contain at least one special character"
-    ),
-  userRegistrationNumber: z.string().min(1, "Registration number is required"),
-  userAvtar: z
-    .string()
-    .url("Must be a valid URL")
-    .default("https://i.pravatar.cc/150?img=3"),
-});
-
-type SignUpFormData = z.infer<typeof signUpSchema>;
-
-export default function SignUp() {
+export default function SignIn() {
   const { login } = useAuth();
   const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
@@ -61,44 +32,35 @@ export default function SignUp() {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<SignUpFormData>({
-    resolver: zodResolver(signUpSchema),
+  } = useForm<SignInFormData>({
+    resolver: zodResolver(signInSchema),
     defaultValues: {
-      userName: "",
       userEmail: "",
       userPassword: "",
-      userRegistrationNumber: "",
-      userAvtar: "https://i.pravatar.cc/150?img=3",
     },
   });
 
-  const onSubmit = async (data: SignUpFormData) => {
-    try {
-      setIsLoading(true);
-      setError(null);
-      const response = await fetch(
-        "https://enigmadnd.vercel.app/api/v1/auth/signup",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(data),
-        }
-      );
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.message || "Sign up failed");
-      }
-
-      login(result);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred");
-    } finally {
-      setIsLoading(false);
-    }
+  const onSubmit = async (data: SignInFormData) => {
+setIsLoading(true);
+    setError(null);
+    API.post("/api/v1/auth/signin",
+      data,
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+      .then((res) => {
+        toast.success(res.data.message)
+        login(res.data)
+      })
+      .catch((error) => {
+        const message = error.response?.data?.message || "An error occurred";
+        setError(message);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      })
   };
 
   return (
@@ -106,32 +68,14 @@ export default function SignUp() {
       <Card className="w-full max-w-md bg-gray-800 border-gray-700">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold text-white">
-            Create an Account
+            Sign In
           </CardTitle>
           <CardDescription className="text-gray-400">
-            Enter your information to create your account
+            Enter your credentials to access your account
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="userName" className="text-gray-300">
-                Full Name
-              </Label>
-              <Input
-                id="userName"
-                type="text"
-                placeholder="Enter your full name"
-                className="bg-gray-700 border-gray-600 text-white placeholder-gray-400"
-                {...register("userName")}
-              />
-              {errors.userName && (
-                <p className="text-sm text-red-400">
-                  {errors.userName.message}
-                </p>
-              )}
-            </div>
-
             <div className="space-y-2">
               <Label htmlFor="userEmail" className="text-gray-300">
                 Email Address
@@ -141,29 +85,12 @@ export default function SignUp() {
                 type="email"
                 placeholder="Enter your email"
                 className="bg-gray-700 border-gray-600 text-white placeholder-gray-400"
+                disabled={isLoading}
                 {...register("userEmail")}
               />
               {errors.userEmail && (
                 <p className="text-sm text-red-400">
                   {errors.userEmail.message}
-                </p>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="userRegistrationNumber" className="text-gray-300">
-                Registration Number
-              </Label>
-              <Input
-                id="userRegistrationNumber"
-                type="text"
-                placeholder="Enter your registration number"
-                className="bg-gray-700 border-gray-600 text-white placeholder-gray-400"
-                {...register("userRegistrationNumber")}
-              />
-              {errors.userRegistrationNumber && (
-                <p className="text-sm text-red-400">
-                  {errors.userRegistrationNumber.message}
                 </p>
               )}
             </div>
@@ -176,12 +103,14 @@ export default function SignUp() {
                 <Input
                   id="userPassword"
                   type={showPassword ? "text" : "password"}
-                  placeholder="Create a password"
+                  placeholder="Enter your password"
                   className="bg-gray-700 border-gray-600 text-white placeholder-gray-400 pr-10"
+                  disabled={isLoading}
                   {...register("userPassword")}
                 />
                 <button
                   type="button"
+                  disabled={isLoading}
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-300"
                 >
@@ -211,18 +140,18 @@ export default function SignUp() {
               className="w-full bg-blue-600 hover:bg-blue-700 text-white"
               disabled={isLoading}
             >
-              {isLoading ? "Creating account..." : "Create Account"}
+              {isLoading ? <Loader className="!h-4 !w-4 animate-spin"/> : "Sign In"}
             </Button>
           </form>
         </CardContent>
         <CardFooter className="flex justify-center">
           <p className="text-sm text-gray-400">
-            Already have an account?{" "}
+            Don&apos;t have an account?{" "}
             <Link
-              href="/auth/signin"
+              href="/signup"
               className="text-blue-400 hover:text-blue-300"
             >
-              Sign in
+              Sign up
             </Link>
           </p>
         </CardFooter>

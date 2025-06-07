@@ -1,7 +1,6 @@
 "use client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { useAuth } from "@/lib/auth-context";
 import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
@@ -30,6 +29,7 @@ import { FilePlus2 } from "lucide-react";
 
 import { formSchema } from "@/schemas/CreateFormSchema";
 import { formSchemaType } from "@/schemas/CreateFormSchema";
+import { useAuth } from "@/hooks/useAuth";
 
 function CreateFormButton() {
   const { isAuthenticated } = useAuth();
@@ -48,7 +48,7 @@ function CreateFormButton() {
       toast.error("Authentication Required", {
         description: "Please sign in to create forms",
       });
-      router.push("/auth/signin");
+      router.push("/signin");
       return;
     }
 
@@ -69,7 +69,7 @@ function CreateFormButton() {
       toast.error("Authentication Required", {
         description: "Please sign in to create forms",
       });
-      router.push("/auth/signin");
+      router.push("/signin");
       return;
     }
   };

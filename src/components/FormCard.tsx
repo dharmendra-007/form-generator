@@ -18,9 +18,9 @@ import { ArrowRight } from "lucide-react";
 import { SquarePen } from "lucide-react";
 import { Button } from "./ui/button";
 import Link from "next/link";
-import { useAuth } from "@/lib/auth-context";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { useAuth } from "@/hooks/useAuth";
 
 function FormCard({
   form,

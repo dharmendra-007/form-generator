@@ -1,6 +1,6 @@
 import FormCard from "./FormCard";
 
-async function getForms() {
+function getForms() {
   return [
     {
       _id: "d059d63a-d4a7-4716-8211-34d2a3ba549f",
@@ -50,8 +50,8 @@ async function getForms() {
   ];
 }
 
-export default async function FormList() {
-  const forms = await getForms();
+export default function FormList() {
+  const forms = getForms();
 
   return (
     <>

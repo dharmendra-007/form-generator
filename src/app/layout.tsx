@@ -3,9 +3,9 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import { Toaster } from "sonner";
-import DesignerContextProvider from "@/components/context/DesignerContext";
+import DesignerContextProvider from "@/context/DesignerContext";
 import NextTopLoader from "nextjs-toploader";
-import { AuthProvider } from "@/lib/auth-context";
+import { AuthProvider } from "@/context/auth-context";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",

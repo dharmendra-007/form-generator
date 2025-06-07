@@ -1,8 +1,7 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import Cookies from "js-cookie";
 
 interface User {
   userId: string;
@@ -26,7 +25,7 @@ interface AuthContextType {
   logout: () => void;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -56,7 +55,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Set token in both localStorage and cookies
     setToken(data.token);
     localStorage.setItem("token", data.token);
-    Cookies.set("token", data.token, { expires: 7 }); // Expires in 7 days
 
     if (data.user) {
       console.log("Setting user data:", data.user);
@@ -77,8 +75,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setIsAuthenticated(false);
     localStorage.removeItem("user");
     localStorage.removeItem("token");
-    Cookies.remove("token");
-    router.push("/auth/signin");
+    router.push("/signin");
   };
 
   return (
@@ -88,12 +85,4 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       {children}
     </AuthContext.Provider>
   );
-}
-
-export function useAuth() {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error("useAuth must be used within an AuthProvider");
-  }
-  return context;
 }
