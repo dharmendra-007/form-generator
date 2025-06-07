@@ -42,7 +42,7 @@ function FormCard({
       toast.error("Authentication Required", {
         description: "Please sign in to view or edit forms",
       });
-      router.push("/auth/signin");
+      router.push("/signin");
     }
   };
 

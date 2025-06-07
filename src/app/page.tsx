@@ -1,8 +1,7 @@
-"use client";
-
 import { Header } from "@/components/header";
 import CreateFormButton from "@/components/CreateFormButton";
 import FormListWrapper from "@/components/FormListWrapper";
+import CardStatsWrapper from "@/components/CardStatsWrapper";
 
 export default function Home() {
   return (
@@ -18,7 +17,18 @@ export default function Home() {
             new form or exploring existing ones.
           </p>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <CardStatsWrapper />
+<div className="relative text-center my-8">
+  <span className="text-4xl font-bold text-white bg-gray-900 px-4 relative z-10">
+    Your Forms
+  </span>
+  <div className="absolute top-1/2 left-0 w-full border-t border-green-700 z-0" />
+</div>
+
+  
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-8">
+          
           <CreateFormButton />
           <FormListWrapper />
         </div>
