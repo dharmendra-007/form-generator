@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"; // Adjust the path if needed
-import { Skeleton } from "@/components/ui/skeleton"; // Adjust the path if needed
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"; 
+import { Skeleton } from "@/components/ui/skeleton"; 
 import clsx from "clsx";
 
 interface StatsCardProps {
