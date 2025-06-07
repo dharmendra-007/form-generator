@@ -1,9 +1,6 @@
 'use client';
 import { LuView } from "react-icons/lu";
 import StatsCard from "./StatsCard";
-import { FaWPpforms } from "react-icons/fa6";       
-import { HiCursorClick } from "react-icons/hi";      
-import { TbArrowBounce } from "react-icons/tb";  
 
 type Stats = {
   visits: number;
