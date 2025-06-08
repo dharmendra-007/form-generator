@@ -12,7 +12,7 @@ import StatsCards from "./StatsCards";
 export default async function CardStatsWrapper() {
 
   const stats = {
-    visits: 0,
+    visits: 100,
   };
 
   return <StatsCards loading={false} data={stats} />;
