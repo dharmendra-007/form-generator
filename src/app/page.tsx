@@ -18,17 +18,15 @@ export default function Home() {
           </p>
         </div>
         <CardStatsWrapper />
-<div className="relative text-center my-8">
-  <span className="text-4xl font-bold text-white bg-gray-900 px-4 relative z-10">
-    Your Forms
-  </span>
-  <div className="absolute top-1/2 left-0 w-full border-t border-green-700 z-0" />
-</div>
-
-  
+        <div className="relative text-center my-8">
+          <span className="text-4xl font-bold text-white bg-gray-900 px-4 relative z-10">
+            Your Forms
+          </span>
+          <div className="absolute top-1/2 left-0 w-full border-t border-green-700 z-0" />
+        </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-8">
-          
+
           <CreateFormButton />
           <FormListWrapper />
         </div>
