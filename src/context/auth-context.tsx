@@ -75,7 +75,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setIsAuthenticated(false);
     localStorage.removeItem("user");
     localStorage.removeItem("token");
-    router.push("/signin");
+    router.push("/");
   };
 
   return (
