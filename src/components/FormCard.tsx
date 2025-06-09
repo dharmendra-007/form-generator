@@ -21,16 +21,20 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
+import { FormElementInstance } from "@/types/formElementType";
 
 function FormCard({
   form,
 }: {
   form: formSchemaType & {
-    _id: string;
-    published: boolean;
-    createdAt: string;
-    visits: number;
-    submissions: number;
+    id: string
+    userId: string
+    createdAt: string
+    publishd: boolean
+    content: FormElementInstance[]
+    visits: number
+    submissions: number
+    shareUrl: string
   };
 }) {
   const { isAuthenticated } = useAuth();
@@ -42,7 +46,7 @@ function FormCard({
       toast.error("Authentication Required", {
         description: "Please sign in to view or edit forms",
       });
-      router.push("/signin");
+      router.push("/");
     }
   };
 
@@ -51,14 +55,14 @@ function FormCard({
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
           <span className="truncate font-bold max-w-[70%]">{form.name}</span>
-          {form.published && <Badge variant="success">Published</Badge>}
-          {!form.published && <Badge variant="destructive">Draft</Badge>}
+          {form.publishd && <Badge variant="success">Published</Badge>}
+          {!form.publishd && <Badge variant="destructive">Draft</Badge>}
         </CardTitle>
         <CardDescription className="flex flex-col gap-3">
           {formatDistance(form.createdAt, new Date(), {
             addSuffix: true,
           })}
-          {form.published && (
+          {form.publishd && (
             <span className="flex items-center text-muted-foreground gap-2">
               <View className="!h-5" />
               <span>{form.visits}</span>
@@ -72,26 +76,26 @@ function FormCard({
         {form.description || "No description"}
       </CardContent>
       <CardFooter className="">
-        {form.published && (
+        {form.publishd && (
           <Button
             asChild
             className="w-full mt-2 text-base"
             onClick={handleAction}
           >
-            <Link href={`/form/${form._id}`}>
+            <Link href={`/form/${form.id}`}>
               View submissions
               <ArrowRight />
             </Link>
           </Button>
         )}
-        {!form.published && (
+        {!form.publishd && (
           <Button
             asChild
             variant="secondary"
             className="w-full mt-2 text-base"
             onClick={handleAction}
           >
-            <Link href={`/builder/${form._id}`}>
+            <Link href={`/builder/${form.id}`}>
               Edit form
               <SquarePen />
             </Link>

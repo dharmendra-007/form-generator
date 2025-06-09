@@ -30,12 +30,25 @@ import { FilePlus2 } from "lucide-react";
 import { formSchema } from "@/schemas/CreateFormSchema";
 import { formSchemaType } from "@/schemas/CreateFormSchema";
 import { useAuth } from "@/hooks/useAuth";
+import API from "@/lib/axios";
+import { FormElementInstance } from "@/types/formElementType";
+
+type form = formSchemaType & {
+  id: string
+  userId: string
+  createdAt: string
+  publishd: boolean
+  content: FormElementInstance[]
+  visits: number
+  submissions: number
+  shareUrl: string
+}
 
 function CreateFormButton({
   onFormCreated,
   userId,
 }: {
-  onFormCreated: (form: any) => void;
+  onFormCreated: (form: form) => void;
   userId: string;
 }) {
   const { isAuthenticated } = useAuth();
@@ -54,35 +67,36 @@ function CreateFormButton({
       toast.error("Authentication Required", {
         description: "Please sign in to create forms",
       });
-      router.push("/signin");
+      router.push("/");
       return;
     }
 
-    try {
-      const response = await fetch(
-        "https://enigmadnd.vercel.app/api/v1/form/create",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            userId,
-            name: values.name,
-            description: values.description,
-          }),
+    API.post("/api/v1/form/create",
+      {
+        userId,
+        name: values.name.trim(),
+        description: values.description?.trim(),
+      },
+      {
+        headers: {
+          "Content-Type": "application/json"
         }
-      );
-      if (!response.ok) throw new Error("Failed to create form");
-      const data = await response.json();
-      toast.success("Success", {
-        description: "Form Created Successfully",
-      });
-      form.reset();
-      if (onFormCreated) onFormCreated(data.form);
-    } catch {
-      toast.error("Error", {
-        description: "Something went wrong!",
-      });
-    }
+      }
+    )
+      .then((res) => {
+        const data = res.data;
+        toast.success("Success", {
+          description: "Form Created Successfully",
+        });
+        form.reset();
+        if (onFormCreated) onFormCreated(data.form);
+      })
+      .catch((err) => {
+        const message = err.response?.data?.message || "An error occured"
+        toast.error("Error", {
+          description: message,
+        });
+      })
   };
 
   const handleClick = () => {
@@ -90,7 +104,7 @@ function CreateFormButton({
       toast.error("Authentication Required", {
         description: "Please sign in to create forms",
       });
-      router.push("/signin");
+      router.push("/");
       return;
     }
   };

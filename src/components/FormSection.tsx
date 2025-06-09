@@ -3,28 +3,44 @@ import { useEffect, useState } from "react";
 import FormList from "./FormList";
 import CreateFormButton from "./CreateFormButton";
 import { useAuth } from "@/hooks/useAuth";
+import { Skeleton } from "./ui/skeleton";
+import API from "@/lib/axios";
+import { toast } from "sonner";
+import { formSchemaType } from "@/schemas/CreateFormSchema";
+import { FormElementInstance } from "@/types/formElementType";
+
+type form = formSchemaType & {
+  id: string
+  userId: string
+  createdAt: string
+  publishd: boolean
+  content: FormElementInstance[]
+  visits: number
+  submissions: number
+  shareUrl: string
+}
 
 export default function FormSection() {
   const { user, isAuthenticated } = useAuth();
-  const [forms, setForms] = useState<any[]>([]);
+  const [forms, setForms] = useState<form[]>([]);
   const [loading, setLoading] = useState(true);
 
   const fetchForms = async (userId: string) => {
     setLoading(true);
-    try {
-      const res = await fetch(
-        `https://enigmadnd.vercel.app/api/v1/form/all/${userId}`
-      );
-      // const res = await fetch(
-      //   `https://enigmadnd.vercel.app/api/v1/form/all/f739e47f-613e-40fc-a230-589b054bcd5b`
-      // );
-      const data = await res.json();
-      setForms(data.forms || []);
-    } catch {
-      setForms([]);
-    } finally {
-      setLoading(false);
-    }
+    API.get(`/api/v1/form/all/${userId}`)
+      .then((res) => {
+        setForms(res.data.forms || []);
+      })
+      .catch((err) => {
+        const message = err.response?.data?.message || "An error occured"
+        toast.error("Error", {
+          description: message,
+        })
+        setForms([])
+      })
+      .finally(() => {
+        setLoading(false);
+      })
   };
 
   useEffect(() => {
@@ -52,8 +68,9 @@ export default function FormSection() {
         />
       )}
       {loading ? (
-        <div className="col-span-3 flex items-center justify-center h-[190px]">
-          Loading...
+        <div className="col-span-3 flex items-center h-[190px] gap-4 flex-wrap">
+          <Skeleton className="h-full w-80" />
+          <Skeleton className="h-full w-80" />
         </div>
       ) : (
         <FormList forms={forms} />
