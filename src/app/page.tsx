@@ -2,6 +2,7 @@ import { Header } from "@/components/header";
 import CreateFormButton from "@/components/CreateFormButton";
 import FormListWrapper from "@/components/FormListWrapper";
 import CardStatsWrapper from "@/components/CardStatsWrapper";
+import FormSection from "@/components/FormSection";
 
 export default function Home() {
   return (
@@ -26,9 +27,7 @@ export default function Home() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-8">
-
-          <CreateFormButton />
-          <FormListWrapper />
+          <FormSection />
         </div>
       </main>
     </div>

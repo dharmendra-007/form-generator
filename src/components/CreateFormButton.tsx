@@ -31,7 +31,13 @@ import { formSchema } from "@/schemas/CreateFormSchema";
 import { formSchemaType } from "@/schemas/CreateFormSchema";
 import { useAuth } from "@/hooks/useAuth";
 
-function CreateFormButton() {
+function CreateFormButton({
+  onFormCreated,
+  userId,
+}: {
+  onFormCreated: (form: any) => void;
+  userId: string;
+}) {
   const { isAuthenticated } = useAuth();
   const router = useRouter();
 
@@ -43,7 +49,7 @@ function CreateFormButton() {
     },
   });
 
-  const onSubmit = (values: formSchemaType) => {
+  const onSubmit = async (values: formSchemaType) => {
     if (!isAuthenticated) {
       toast.error("Authentication Required", {
         description: "Please sign in to create forms",
@@ -53,10 +59,25 @@ function CreateFormButton() {
     }
 
     try {
+      const response = await fetch(
+        "https://enigmadnd.vercel.app/api/v1/form/create",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            userId,
+            name: values.name,
+            description: values.description,
+          }),
+        }
+      );
+      if (!response.ok) throw new Error("Failed to create form");
+      const data = await response.json();
       toast.success("Success", {
         description: "Form Created Successfully",
       });
-      console.log(values);
+      form.reset();
+      if (onFormCreated) onFormCreated(data.form);
     } catch {
       toast.error("Error", {
         description: "Something went wrong!",
