@@ -181,7 +181,7 @@ function FormCard({
                 <Button
                   variant="outline"
                   size="icon"
-                  className="shrink-0 text-destructive hover:text-destructive-foreground hover:bg-destructive transition-colors duration-200"
+                  className="shrink-0 text-destructive hover:text-destructive-foreground hover:bg-destructive transition-colors duration-200 cursor-pointer"
                 >
                   <Trash2 className="h-4 w-4" />
                   <span className="sr-only">Delete form</span>
@@ -196,9 +196,9 @@ function FormCard({
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogCancel className="cursor-pointer">Cancel</AlertDialogCancel>
                   <AlertDialogAction
-                    className="bg-destructive text-white hover:bg-destructive/90"
+                    className="bg-destructive text-white hover:bg-destructive/90 cursor-pointer"
                     onClick={async (e) => {
                       e.preventDefault();
                       if (!isAuthenticated) {
