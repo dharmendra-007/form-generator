@@ -10,15 +10,15 @@ import { formSchemaType } from "@/schemas/CreateFormSchema";
 import { FormElementInstance } from "@/types/formElementType";
 
 type form = formSchemaType & {
-  id: string
-  userId: string
-  createdAt: string
-  publishd: boolean
-  content: FormElementInstance[]
-  visits: number
-  submissions: number
-  shareUrl: string
-}
+  id: string;
+  userId: string;
+  createdAt: string;
+  publishd: boolean;
+  content: FormElementInstance[];
+  visits: number;
+  submissions: number;
+  shareUrl: string;
+};
 
 export default function FormSection() {
   const { user, isAuthenticated } = useAuth();
@@ -32,15 +32,15 @@ export default function FormSection() {
         setForms(res.data.forms || []);
       })
       .catch((err) => {
-        const message = err.response?.data?.message || "An error occured"
+        const message = err.response?.data?.message || "An error occured";
         toast.error("Error", {
           description: message,
-        })
-        setForms([])
+        });
+        setForms([]);
       })
       .finally(() => {
         setLoading(false);
-      })
+      });
   };
 
   useEffect(() => {
@@ -73,7 +73,12 @@ export default function FormSection() {
           <Skeleton className="h-full w-80" />
         </div>
       ) : (
-        <FormList forms={forms} />
+        <FormList
+          forms={forms}
+          onDeleteForm={(id) =>
+            setForms((forms) => forms.filter((f) => f.id !== id))
+          }
+        />
       )}
     </>
   );

@@ -34,15 +34,15 @@ import API from "@/lib/axios";
 import { FormElementInstance } from "@/types/formElementType";
 
 type form = formSchemaType & {
-  id: string
-  userId: string
-  createdAt: string
-  publishd: boolean
-  content: FormElementInstance[]
-  visits: number
-  submissions: number
-  shareUrl: string
-}
+  id: string;
+  userId: string;
+  createdAt: string;
+  publishd: boolean;
+  content: FormElementInstance[];
+  visits: number;
+  submissions: number;
+  shareUrl: string;
+};
 
 function CreateFormButton({
   onFormCreated,
@@ -51,7 +51,7 @@ function CreateFormButton({
   onFormCreated: (form: form) => void;
   userId: string;
 }) {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, token } = useAuth();
   const router = useRouter();
 
   const form = useForm<formSchemaType>({
@@ -71,7 +71,8 @@ function CreateFormButton({
       return;
     }
 
-    API.post("/api/v1/form/create",
+    API.post(
+      "/api/v1/form/create",
       {
         userId,
         name: values.name.trim(),
@@ -79,8 +80,9 @@ function CreateFormButton({
       },
       {
         headers: {
-          "Content-Type": "application/json"
-        }
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
       }
     )
       .then((res) => {
@@ -92,11 +94,11 @@ function CreateFormButton({
         if (onFormCreated) onFormCreated(data.form);
       })
       .catch((err) => {
-        const message = err.response?.data?.message || "An error occured"
+        const message = err.response?.data?.message || "An error occured";
         toast.error("Error", {
           description: message,
         });
-      })
+      });
   };
 
   const handleClick = () => {
