@@ -1,73 +1,35 @@
-"use client";
-
-import type React from "react";
-
 import {
   Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
+  CardDescription,
+  CardContent,
+  CardFooter,
 } from "@/components/ui/card";
-
-import type { formSchemaType } from "@/schemas/CreateFormSchema";
-import { Badge } from "./ui/badge";
-import { formatDistance } from "date-fns";
-import { View, FileMinus, ArrowRight, SquarePen, Trash2 } from "lucide-react";
-import { Button } from "./ui/button";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { toast } from "sonner";
-import { useAuth } from "@/hooks/useAuth";
-import type { FormElementInstance } from "@/types/formElementType";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   AlertDialog,
   AlertDialogTrigger,
   AlertDialogContent,
   AlertDialogHeader,
-  AlertDialogFooter,
   AlertDialogTitle,
   AlertDialogDescription,
-  AlertDialogAction,
+  AlertDialogFooter,
   AlertDialogCancel,
-} from "./ui/alert-dialog";
+  AlertDialogAction,
+} from "@/components/ui/alert-dialog";
+import { View, FileMinus, SquarePen, Trash2, ArrowRight } from "lucide-react";
+import Link from "next/link";
+import { formatDistance } from "date-fns";
+import { useRouter } from "next/navigation";
+import { formSchemaType } from "@/schemas/CreateFormSchema";
+import { FormElementInstance } from "@/types/formElementType";
+import { toast } from "sonner";
+import { useAuth } from "@/hooks/useAuth";
+import API from "@/lib/axios";
 
-// Type guard for AxiosError with response.data.message
-function isAxiosErrorWithMessage(
-  err: unknown
-): err is { response: { data: { message: string } } } {
-  return (
-    typeof err === "object" &&
-    err !== null &&
-    "response" in err &&
-    typeof (err as { response?: unknown }).response === "object" &&
-    (err as { response: { data?: unknown } }).response !== null &&
-    "data" in (err as { response: { data?: unknown } }).response &&
-    typeof (err as { response: { data: { message?: unknown } } }).response
-      .data === "object" &&
-    (err as { response: { data: { message?: unknown } } }).response.data !==
-      null &&
-    "message" in
-      (err as { response: { data: { message?: unknown } } }).response.data &&
-    typeof (err as { response: { data: { message?: unknown } } }).response.data
-      .message === "string"
-  );
-}
-
-function isErrorWithMessage(err: unknown): err is { message: string } {
-  return (
-    typeof err === "object" &&
-    err !== null &&
-    "message" in err &&
-    typeof (err as { message?: unknown }).message === "string"
-  );
-}
-
-function FormCard({
-  form,
-  onDelete,
-}: {
+type FormCardProps = {
   form: formSchemaType & {
     id: string;
     userId: string;
@@ -79,7 +41,9 @@ function FormCard({
     shareUrl: string;
   };
   onDelete: (id: string) => void;
-}) {
+};
+
+export function FormCard({ form, onDelete }: FormCardProps) {
   const { isAuthenticated, token } = useAuth();
   const router = useRouter();
 
@@ -93,6 +57,33 @@ function FormCard({
     }
   };
 
+  const handleDelete = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (!isAuthenticated) {
+      toast.error("Authentication Required", {
+        description: "Please sign in to delete forms",
+      });
+      router.push("/");
+      return;
+    }
+
+    API.delete(`/api/v1/form/delete/${form.id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      }
+    })
+      .then(() => {
+        toast.success("Form deleted successfully");
+        onDelete(form.id);
+      })
+      .catch((error) => {
+        const message = error.response.data.message || "Something went wrong"
+        toast.error("Failed to delete form", {
+          description: message,
+        });
+      })
+  };
+
   return (
     <Card className="group hover:shadow-lg transition-all duration-200 border-border/50 hover:border-border flex flex-col h-full">
       <CardHeader className="pb-3">
@@ -102,11 +93,10 @@ function FormCard({
           </span>
           <Badge
             variant={form.published ? "default" : "secondary"}
-            className={`shrink-0 ${
-              form.published
-                ? "bg-green-100 text-green-800 hover:bg-green-100 dark:bg-green-900/20 dark:text-green-400"
-                : "bg-orange-100 text-orange-800 hover:bg-orange-100 dark:bg-orange-900/20 dark:text-orange-400"
-            }`}
+            className={`shrink-0 ${form.published
+              ? "bg-green-100 text-green-800 hover:bg-green-100 dark:bg-green-900/20 dark:text-green-400"
+              : "bg-orange-100 text-orange-800 hover:bg-orange-100 dark:bg-orange-900/20 dark:text-orange-400"
+              }`}
           >
             {form.published ? "Published" : "Draft"}
           </Badge>
@@ -145,15 +135,15 @@ function FormCard({
         </p>
       </CardContent>
 
-      <CardFooter className="pt-0">
+      <CardFooter className="pt-0 flex gap-2">
         {form.published ? (
           <Button
             asChild
-            className="w-full group-hover:shadow-sm transition-all duration-200"
+            className="flex-1 group-hover:shadow-sm transition-all duration-200"
             onClick={handleAction}
           >
             <Link
-              href={`/form/${form.id}`}
+              href={`/forms/${form.id}`}
               className="flex items-center justify-center gap-2"
             >
               View submissions
@@ -161,86 +151,52 @@ function FormCard({
             </Link>
           </Button>
         ) : (
-          <div className="flex gap-2 w-full">
-            <Button
-              asChild
-              variant="outline"
-              className="flex-1 group-hover:shadow-sm transition-all duration-200"
-              onClick={handleAction}
+          <Button
+            asChild
+            variant="outline"
+            className="flex-1 group-hover:shadow-sm transition-all duration-200"
+            onClick={handleAction}
+          >
+            <Link
+              href={`/builder/${form.id}`}
+              className="flex items-center justify-center gap-2"
             >
-              <Link
-                href={`/builder/${form.id}`}
-                className="flex items-center justify-center gap-2"
-              >
-                <SquarePen className="h-4 w-4" />
-                Edit form
-              </Link>
-            </Button>
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  className="shrink-0 text-destructive hover:text-destructive-foreground hover:bg-destructive transition-colors duration-200 cursor-pointer"
-                >
-                  <Trash2 className="h-4 w-4" />
-                  <span className="sr-only">Delete form</span>
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Delete this form?</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    This action cannot be undone. This will permanently delete
-                    your form and all its data.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel className="cursor-pointer">Cancel</AlertDialogCancel>
-                  <AlertDialogAction
-                    className="bg-destructive text-white hover:bg-destructive/90 cursor-pointer"
-                    onClick={async (e) => {
-                      e.preventDefault();
-                      if (!isAuthenticated) {
-                        toast.error("Authentication Required", {
-                          description: "Please sign in to delete forms",
-                        });
-                        router.push("/");
-                        return;
-                      }
-                      try {
-                        await (
-                          await import("@/lib/axios")
-                        ).default.delete(`/api/v1/form/delete/${form.id}`, {
-                          headers: {
-                            Authorization: `Bearer ${token}`,
-                          },
-                        });
-                        toast.success("Form deleted successfully");
-                        onDelete(form.id);
-                      } catch (err: unknown) {
-                        let message = "Unknown error";
-                        if (isAxiosErrorWithMessage(err)) {
-                          message = err.response.data.message;
-                        } else if (isErrorWithMessage(err)) {
-                          message = err.message;
-                        }
-                        toast.error("Failed to delete form", {
-                          description: message,
-                        });
-                      }
-                    }}
-                  >
-                    Delete
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
-          </div>
+              <SquarePen className="h-4 w-4" />
+              Edit form
+            </Link>
+          </Button>
         )}
+
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button
+              variant="outline"
+              size="icon"
+              className="shrink-0 text-destructive hover:text-destructive-foreground hover:bg-destructive transition-colors duration-200 cursor-pointer"
+            >
+              <Trash2 className="h-4 w-4 cursor-pointer" />
+              <span className="sr-only">Delete form</span>
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Delete this form?</AlertDialogTitle>
+              <AlertDialogDescription>
+                This action cannot be undone. This will permanently delete your form and all its data.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel className="cursor-pointer">Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                className="bg-destructive text-white hover:bg-destructive/90 cursor-pointer"
+                onClick={handleDelete}
+              >
+                Delete
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </CardFooter>
     </Card>
   );
 }
-
-export default FormCard;

@@ -45,7 +45,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const login = (data: AuthResponse) => {
-    console.log("Login called with data:", data);
 
     if (!data.token) {
       console.error("No token received in login data");
@@ -57,13 +56,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem("token", data.token);
 
     if (data.user) {
-      console.log("Setting user data:", data.user);
       setUser(data.user);
       localStorage.setItem("user", JSON.stringify(data.user));
     }
 
     setIsAuthenticated(true);
-    console.log("Redirecting to home page...");
 
     // Redirect to the main home page
     router.push("/");

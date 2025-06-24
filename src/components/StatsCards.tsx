@@ -39,8 +39,8 @@ export default function StatsCards({ data, loading }: StatsCardProps) {
         icon={<LuView className="text-green-600" />}
         helperText="All time form visits"
         value={
-          data?.submissionRate === undefined ? "0 %" :
-            data?.submissionRate?.toLocaleString() + " %"
+          data?.submissionRate === undefined ? "0%" :
+            data?.submissionRate?.toLocaleString() + "%"
         }
         loading={loading}
         className="shadow-md shadow-green-600"
@@ -50,7 +50,7 @@ export default function StatsCards({ data, loading }: StatsCardProps) {
         icon={<LuView className="text-green-600" />}
         helperText="Visits that leave without interacting"
         value={
-          data?.bounceRate === undefined ? "0 %" : data?.bounceRate?.toLocaleString() + "%"
+          data?.bounceRate === undefined ? "0%" : data?.bounceRate?.toLocaleString() + "%"
         }
         loading={loading}
         className="shadow-md shadow-green-600"

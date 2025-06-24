@@ -2,10 +2,9 @@
 
 import FormBuilder from '@/components/FormBuilder'
 import React from 'react'
-// import VisitBtn from '@/components/VisitBtn';
-// import FormLinkShare from '@/components/formLinkShare';
 import { formatDistance } from 'date-fns';
 import { ElementsType, FormElementInstance } from '@/types/formElementType';
+import BuildFormWrapper from '@/components/buildFormWrapper';
 // import { FormElements } from '@/components/FormElements';
 
 const sampleFormContent = JSON.stringify([
@@ -95,34 +94,9 @@ export default async function BuilderPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const form = {
-    "_id": "d059d63a-d4a7-4716-8211-34d2a3ba549f",
-    "name": "Zaam-Dox",
-    "description": "Savory wraps with buffalo chicken and fresh vegetables.",
-    "published": false,
-    "createdAt": "5/21/2024",
-    "visits": 266,
-    "submissions": 280
-  }
 
-  return (
-    <div>
-      <div>
-        {/* <div className="py-10 border-b border-muted">
-      <div className="flex justify-between container">
-        <h1 className="text-4xl font-bold truncate">{form.name}</h1>
-        <VisitBtn shareUrl={form.shareURL} />
-      </div>
-    </div>
-
-    <div className="py-4 border-b border-muted">
-      <div className="container flex gap-2 items-center justify-between">
-        <FormLinkShare shareUrl={form.shareURL} />
-      </div>
-    </div> */}
-      </div>
-      <FormBuilder form={form} />
-    </div>
+  return(
+    <BuildFormWrapper id={id}/>
   )
 }
 
@@ -131,7 +105,6 @@ type Row = { [key: string]: string } & {
 };
 
 async function SubmissionsTable({ id }: { id: number }
-
 ) {
   // const form = await GetFormWithSubmissions(id)
   const form = {
@@ -164,7 +137,7 @@ async function SubmissionsTable({ id }: { id: number }
     }
   });
   const rows: Row[] = [];
-  //forms.FormsSubmission.forEach({submission})=> {
+  // forms.FormsSubmission.forEach({submission})=> {
   //   const content =JSON.parse(SubmissionsTable.content);
   //   rows.push({
   //     ...content
@@ -208,12 +181,4 @@ async function SubmissionsTable({ id }: { id: number }
       </div>
     </>
   );
-
 }
-
-
-
-// function RowCell({ type, value }: { type: ElementsType; value: string }) {
-//   let node: ReactNode = value;
-//   return <td>{node}</td>;
-// }

@@ -14,7 +14,7 @@ export default function CardStatsWrapper() {
         Authorization: `Bearer ${token}`,
       },
     }).then((res) => {
-      setStats(res.data);
+      setStats(res.data.data);
     });
   }, [token, user?.userId]);
 

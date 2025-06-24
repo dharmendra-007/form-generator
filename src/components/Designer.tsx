@@ -129,9 +129,7 @@ function Designer() {
 }
 
 function DesignerElementWrapper({ element }: { element: FormElementInstance }) {
-
-  console.log("Rendering element:", element.id);
-  const {removeElement , selectedElement , setSelectedElement} = useDesigner()
+  const {removeElement , setSelectedElement} = useDesigner()
   const [mouseIsOver, setMouseIsOver] = useState<boolean>(false)
 
   const topHalf = useDroppable({
@@ -167,7 +165,6 @@ function DesignerElementWrapper({ element }: { element: FormElementInstance }) {
 
   const DesignerElement = FormElements[element.type].designerComponent
 
-  console.log("select" , selectedElement)
   return (
     <div
     ref={draggable.setNodeRef}

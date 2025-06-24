@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { Button } from "./ui/button";
 
-function VisitBtn({ shareUrl }: { shareUrl: string }) {
+function VisitBtn({ shareUrl }: { shareUrl: string}) {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -16,7 +16,7 @@ function VisitBtn({ shareUrl }: { shareUrl: string }) {
 
   return (
     <Button
-      className="w-[200px]"
+      className="w-[150px]"
       onClick={() => {
         window.open(shareLink, "_blank");
       }}

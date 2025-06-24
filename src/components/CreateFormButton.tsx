@@ -32,6 +32,7 @@ import { formSchemaType } from "@/schemas/CreateFormSchema";
 import { useAuth } from "@/hooks/useAuth";
 import API from "@/lib/axios";
 import { FormElementInstance } from "@/types/formElementType";
+import { useState } from "react";
 
 type form = formSchemaType & {
   id: string;
@@ -52,6 +53,7 @@ function CreateFormButton({
   userId: string;
 }) {
   const { isAuthenticated, token } = useAuth();
+  const [dialogOpen, setDialogOpen] = useState(false);
   const router = useRouter();
 
   const form = useForm<formSchemaType>({
@@ -98,7 +100,10 @@ function CreateFormButton({
         toast.error("Error", {
           description: message,
         });
-      });
+      })
+      .finally(() => {
+        setDialogOpen(false);
+      })
   };
 
   const handleClick = () => {
@@ -113,7 +118,7 @@ function CreateFormButton({
 
   return (
     <>
-      <Dialog>
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogTrigger asChild>
           <Button
             variant="outline"
@@ -145,9 +150,6 @@ function CreateFormButton({
                     <FormControl>
                       <Input placeholder="Enter a name" {...field} />
                     </FormControl>
-                    {/* <FormDescription>
-                    This is your public display name.
-                  </FormDescription> */}
                     <FormMessage />
                   </FormItem>
                 )}
@@ -172,7 +174,7 @@ function CreateFormButton({
               />
               <Button
                 type="submit"
-                className="w-full"
+                className="w-full cursor-pointer"
                 disabled={form.formState.isSubmitting}
               >
                 {form.formState.isSubmitting ? (

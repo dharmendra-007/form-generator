@@ -1,7 +1,6 @@
 "use client"
 
-
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { formSchemaType } from '@/schemas/CreateFormSchema';
 import PreviewDialogButton from './PreviewDialogButton';
 import SaveFormButton from './SaveFormButton';
@@ -15,129 +14,149 @@ import {
   useSensors,
 } from '@dnd-kit/core';
 import DragOverlayWrapper from './DragOverlayWrapper';
-// import { Input } from './ui/input';
-// import { Button } from './ui/button'; 
-// import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-// import { faArrowLeft, faArrowRight } from '@fortawesome/free-solid-svg-icons';
-// import Link from 'next/link';
+import { FormElementInstance } from '@/types/formElementType';
+import useDesigner from '@/hooks/useDesigner';
+import { Button } from './ui/button';
+import Link from 'next/link';
+import { Input } from './ui/input';
+import { ArrowLeft, ArrowRight, Check, Copy } from 'lucide-react';
 
-function FormBuilder({form}: {
-  form : formSchemaType & {
-    _id : string
-    published: boolean,
-    createdAt: string,
-    visits: number,
-    submissions: number
-  }
+function FormBuilder({ form }: {
+  form: formSchemaType & {
+    id: string;
+    userId: string;
+    createdAt: string;
+    publishd: boolean;
+    content: FormElementInstance[];
+    visits: number;
+    submissions: number;
+    shareUrl: string;
+  } | undefined
+}) {
+  const [isReady, setIsReady] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const { setElements } = useDesigner();
 
-
-})
-
-{    
-  // const [isReady, setIsReady] = useState(false);
-  // const { setElements } = useDesigner();
-  const mouseSensor = useSensor(MouseSensor,{
-    activationConstraint : {
+  const mouseSensor = useSensor(MouseSensor, {
+    activationConstraint: {
       distance: 10,
     },
-  })
+  });
 
-  const touchSensor = useSensor(TouchSensor , {
-    activationConstraint : {
-      delay : 300,
-      tolerance : 5,
+  const touchSensor = useSensor(TouchSensor, {
+    activationConstraint: {
+      delay: 300,
+      tolerance: 5,
     }
-  })
-  const sensors = useSensors(mouseSensor , touchSensor)
+  });
 
-// useEffect(() => {
-//     if (!form.content) return;
+  const sensors = useSensors(mouseSensor, touchSensor);
 
-//     try {
-//       const elements = JSON.parse(form.content);
-//       setElements(elements);
-//       const readyTimeout = setTimeout(() => setIsReady(true), 500);
-//       return () => clearTimeout(readyTimeout);
-//     } catch (err) {
-//       console.error('Error parsing form content:', err);
-//     }
-//   }, [form, setElements]);
+  useEffect(() => {
+    if (!form?.content) return;
 
-//   if (!isReady) {
-//     return (
-//       <div className="flex flex-col items-center justify-center w-full h-full">
-//         <i className="fa fa-spinner animate-spin text-4xl" aria-hidden="true"></i>
-//       </div>
-//     );
-//   }
-//   const shareUrl = `${window.location.origin}/submit/${form.shareUrl}`;
+    try {
+      const elements = JSON.parse(String(form.content));
+      setElements(elements);
+      const readyTimeout = setTimeout(() => setIsReady(true), 500);
+      return () => clearTimeout(readyTimeout);
+    } catch (err) {
+      console.error('Error parsing form content:', err);
+    }
+  }, [form, setElements]);
 
-//   if (form.published) {
-//     return (
-//       <div className="flex flex-col items-center justify-center h-full w-full">
-//         <div className="max-w-md">
-//           <h1 className="text-center text-4xl font-bold text-primary border-b pb-2 mb-2">
-//             Form Published
-//           </h1>
-//           <h2 className="text-2xl">Share this form</h2>
-//           <h3 className="text-xl">
-//             Anyone with the link can view and submit this form
-//           </h3>
-//           <div className="my-4 flex flex-col gap-2 items-center w-full border-b pb-4">
-//             <Input className="w-full" readOnly value={shareUrl} />
-//             <button
-//               className="mt-2 w-full bg-blue-500 hover:bg-blue-600 text-white py-2 rounded"
-//               onClick={() => {
-//                 navigator.clipboard.writeText(shareUrl);
-//               }}
-//             >
-//               Copy Link
-//             </button>
-//             <div className="flex justify-between w-full mt-4">
-//               <Button variant="link" asChild>
-//                 <Link href="/" className="flex items-center gap-2">
-//                   <FontAwesomeIcon icon={faArrowLeft} />
-//                   Go back home
-//                 </Link>
-//               </Button>
-//               <Button variant="link" asChild>
-//                 <Link href={`/forms/${form.id}`} className="flex items-center gap-2">
-//                   <FontAwesomeIcon icon={faArrowRight} />
-//                   Form details
-//                 </Link>
-//               </Button>
-//             </div>
-//           </div>
-//         </div>
-//       </div>
-//     );
-//   }
+  if (!isReady) {
+    return (
+      <div className="flex flex-col items-center justify-center w-full h-full">
+        <i className="fa fa-spinner animate-spin text-4xl" aria-hidden="true"></i>
+      </div>
+    );
+  }
+
+  const shareUrl = `${window.location.origin}/submit/${form?.shareUrl}`;
+
+  if (form?.publishd) {
+    const handleCopy = () => {
+      navigator.clipboard.writeText(shareUrl);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    };
+
+    return (
+      <div className="flex flex-col items-center justify-center h-screen w-full bg-foreground/10 px-4">
+        <div className="max-w-md w-full border p-6 rounded-xl shadow-md bg-background">
+          <h1 className="text-center text-3xl font-bold text-primary border-b pb-3 mb-4">
+            ✅ Form Published
+          </h1>
+          <h2 className="text-lg font-semibold font-mono mb-1">🔗 Share this form</h2>
+          <h3 className="text-sm text-muted-foreground mb-4">
+            Anyone with the link can view and submit this form
+          </h3>
+
+          <div className="flex flex-col gap-3 items-center w-full">
+            <Input className="w-full font-mono" readOnly value={shareUrl} />
+            <Button
+              className="mt-1 w-full py-2 rounded-md cursor-pointer"
+              onClick={handleCopy}
+              variant={copied ? "secondary" : "default"}
+            >
+              {copied ? (
+                <>
+                  <Check className="mr-2 h-4 w-4" />
+                  Copied!
+                </>
+              ) : (
+                <>
+                  <Copy className="mr-2 h-4 w-4" />
+                  Copy Link
+                </>
+              )}
+            </Button>
+
+            <div className="flex justify-between w-full mt-6">
+              <Button variant="link" asChild>
+                <Link href="/" className="flex items-center gap-1 text-sm">
+                  <ArrowLeft className="w-4 h-4" />
+                  Go back home
+                </Link>
+              </Button>
+              <Button variant="link" asChild>
+                <Link href={`/forms/${form.id}`} className="flex items-center gap-1 text-sm">
+                  Form details
+                  <ArrowRight className="w-4 h-4" />
+                </Link>
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <DndContext sensors={sensors}>
-      <main className='flex flex-col w-full p-10 h-screen'>
-        <nav className='flex justify-between border-b-2 gap-3 items-center'>
+      <main className='flex flex-col w-full px-10 h-screen'>
+        <nav className='flex justify-between border-b-2 gap-3 items-center px-2 py-4'>
           <h2 className='truncate font-medium'>
-            <span className='text-muted-foreground mr-2'>Form : {form.name}</span>
+            <span className='text-muted-foreground mr-2'>Form: {form ? form.name : ""}</span>
           </h2>
-          <div className='flex items-center gap-2 mb-2'>
-            <PreviewDialogButton/>
-            {!form.published &&
-            <>
-            <SaveFormButton id={form._id}/>
-            <PublishFormButton id={form._id}/>
-            </>}
+          <div className='flex items-center gap-2'>
+            <PreviewDialogButton />
+            {form && !form.publishd && (
+              <>
+                <SaveFormButton id={form.id} />
+                <PublishFormButton id={form.id} />
+              </>
+            )}
           </div>
         </nav>
         <div className="flex w-full flex-grow items-center justify-center relative overflow-y-auto h-[200px] bg-accent bg-[url(/paper.svg)] dark:bg-[url(/paper-dark.svg)]">
-        <Designer/>
+          <Designer />
         </div>
       </main>
-      <DragOverlayWrapper/>
+      <DragOverlayWrapper />
     </DndContext>
-  )
+  );
 }
 
-
-
-export default FormBuilder
+export default FormBuilder;

@@ -1,6 +1,6 @@
 import { formSchemaType } from "@/schemas/CreateFormSchema";
-import FormCard from "./FormCard";
 import { FormElementInstance } from "@/types/formElementType";
+import { FormCard } from "./FormCard";
 
 type form = formSchemaType & {
   id: string;
@@ -13,7 +13,6 @@ type form = formSchemaType & {
   shareUrl: string;
 };
 
-// Type guard for published/publishd
 function getPublishedProp(form: object): boolean {
   if (typeof form === "object" && form !== null) {
     if (
