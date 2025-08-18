@@ -18,7 +18,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Form Builder",
+  title: "Form Generator",
   description: "Generating a form is super simple.",
 };
 

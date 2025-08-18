@@ -135,7 +135,7 @@ function FormComponent({
       <RadioGroup 
         value={value} 
         onValueChange={handleValueChange}
-        className={cn(error && "text-red-500", "flex flex-row gap-4")}
+        className={cn(error && "text-red-500", "flex flex-row flex-wrap gap-4")}
       >
         {options.map((option, index) => (
           <div key={index} className="flex items-center space-x-2">
