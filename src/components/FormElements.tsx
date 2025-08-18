@@ -9,7 +9,7 @@ import { TextAreaFieldFormElement } from "./fields/TextAreaField";
 import { SelectFieldFormElement } from "./fields/SelectField";
 import { CheckboxFieldFormElement } from "./fields/CheckboxField";
 import { EmailFieldFormElement } from "./fields/EmailField";
-
+import {RadioButtonFieldFormElement} from "./fields/RadioButton"
 
 export const FormElements: FormElementsType = {
   TextField: TextFieldFormElements,
@@ -22,4 +22,5 @@ export const FormElements: FormElementsType = {
   SelectField: SelectFieldFormElement,       
   CheckboxField: CheckboxFieldFormElement, 
   EmailField: EmailFieldFormElement,
+  RadioButtonField: RadioButtonFieldFormElement
 }

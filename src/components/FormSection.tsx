@@ -13,7 +13,7 @@ type form = formSchemaType & {
   id: string;
   userId: string;
   createdAt: string;
-  publishd: boolean;
+  published: boolean;
   content: FormElementInstance[];
   visits: number;
   submissions: number;

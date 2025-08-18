@@ -1,6 +1,6 @@
 "use client";
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { ElementsType, FormElement, FormElementInstance } from "@/types/formElementType";
 import { MdNumbers } from "react-icons/md"; 
 import { Label } from "../ui/label";
@@ -9,7 +9,7 @@ import useDesigner from "@/hooks/useDesigner";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Switch } from "../ui/switch";
 import { Input } from "../ui/input";
 import { cn } from "@/lib/utils";
@@ -48,10 +48,10 @@ export const SelectFieldFormElement: FormElement = {
   designerComponent: DesignerComponent,
   formComponent: FormComponent,
   propertiesComponent: PropertiesComponent,
-  validate: (formElement: FormElementInstance, currentValue: string) => {
+  validate: (formElement: FormElementInstance, currentValue: string): boolean => {
     const element = formElement as CustomInstance;
     if (element.extraAttributes.required) {
-      return currentValue.length > 0;
+      return currentValue.trim().length > 0;
     }
     return true;
   },
@@ -61,9 +61,10 @@ type CustomInstance = FormElementInstance & {
   extraAttributes: typeof extraAttributes;
 };
 
+// --------------------- Designer Component ---------------------
 function DesignerComponent({ elementInstance }: { elementInstance: FormElementInstance }) {
   const element = elementInstance as CustomInstance;
-  const { label, required, placeholder, options } = element.extraAttributes;
+  const { label, required, placeholder, helperText, options } = element.extraAttributes;
 
   return (
     <div className="flex flex-col gap-2 w-full">
@@ -83,10 +84,12 @@ function DesignerComponent({ elementInstance }: { elementInstance: FormElementIn
           ))}
         </SelectContent>
       </Select>
+      {helperText && <p className="text-muted-foreground text-[0.8rem]">{helperText}</p>}
     </div>
   );
 }
 
+// --------------------- Form Component ---------------------
 function FormComponent({
   elementInstance,
   submitValue,
@@ -99,13 +102,34 @@ function FormComponent({
   defaultValue?: string;
 }) {
   const element = elementInstance as CustomInstance;
-  const { label, required, placeholder, options } = element.extraAttributes;
-  const [value, setValue] = React.useState(defaultValue || "");
-  const [error, setError] = React.useState(false);
+  const { label, required, placeholder, helperText, options } = element.extraAttributes;
 
-  React.useEffect(() => {
-    setError(isInvalid === true);
-  }, [isInvalid]);
+  const [value, setValue] = useState(defaultValue || "");
+  const [error, setError] = useState<string | null>(null);
+
+  // Sync error state with parent validation
+  useEffect(() => {
+    if (isInvalid) {
+      setError(required ? "This field is required" : "Invalid selection");
+    } else {
+      setError(null);
+    }
+  }, [isInvalid, required]);
+
+  const validateField = (val: string) => {
+    if (required && val.trim() === "") {
+      setError("This field is required");
+      return false;
+    }
+    setError(null);
+    return true;
+  };
+
+  const handleValueChange = (val: string) => {
+    setValue(val);
+    const valid = validateField(val);
+    if (valid && submitValue) submitValue(element.id, val);
+  };
 
   return (
     <div className="flex flex-col gap-2 w-full">
@@ -113,13 +137,7 @@ function FormComponent({
         {label}
         {required && <span className="text-red-500">*</span>}
       </Label>
-      <Select
-        value={value}
-        onValueChange={(value) => {
-          setValue(value);
-          if (submitValue) submitValue(element.id, value);
-        }}
-      >
+      <Select value={value} onValueChange={handleValueChange}>
         <SelectTrigger className={cn("w-full", error && "border-red-500")}>
           <SelectValue placeholder={placeholder} />
         </SelectTrigger>
@@ -131,18 +149,20 @@ function FormComponent({
           ))}
         </SelectContent>
       </Select>
-      {error && (
-        <p className="text-red-500 text-[0.8rem]">
-          {element.extraAttributes.helperText}
-        </p>
+      {error ? (
+        <p className="text-red-500 text-[0.8rem]">{error}</p>
+      ) : (
+        helperText && <p className="text-muted-foreground text-[0.8rem]">{helperText}</p>
       )}
     </div>
   );
 }
 
+// --------------------- Properties Component ---------------------
 function PropertiesComponent({ elementInstance }: { elementInstance: FormElementInstance }) {
   const element = elementInstance as CustomInstance;
   const { updateElement } = useDesigner();
+
   const form = useForm<PropertiesFormSchemaType>({
     resolver: zodResolver(propertiesSchema),
     mode: "onBlur",
@@ -155,20 +175,17 @@ function PropertiesComponent({ elementInstance }: { elementInstance: FormElement
     },
   });
 
-  React.useEffect(() => {
+  useEffect(() => {
     form.reset(element.extraAttributes);
   }, [element, form]);
 
-  function applyChanges(values: PropertiesFormSchemaType) {
-    const { options } = values;
+  const applyChanges = (values: PropertiesFormSchemaType) => {
+    const { label, helperText, placeholder, required, options } = values;
     updateElement(element.id, {
       ...element,
-      extraAttributes: {
-        ...values,
-        options,
-      },
+      extraAttributes: { label, helperText, required, placeholder, options }
     });
-  }
+  };
 
   return (
     <Form {...form}>
@@ -177,6 +194,7 @@ function PropertiesComponent({ elementInstance }: { elementInstance: FormElement
         onSubmit={(e) => e.preventDefault()}
         className="space-y-3"
       >
+        {/* Label */}
         <FormField
           control={form.control}
           name="label"
@@ -184,17 +202,17 @@ function PropertiesComponent({ elementInstance }: { elementInstance: FormElement
             <FormItem>
               <FormLabel>Label</FormLabel>
               <FormControl>
-                <Input
-                  {...field}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") e.currentTarget.blur();
-                  }}
+                <Input {...field} placeholder="Enter field label"
+                  onKeyDown={(e) => { if (e.key === "Enter") e.currentTarget.blur(); }}
                 />
               </FormControl>
+              <FormDescription>The label displayed above the field</FormDescription>
               <FormMessage />
             </FormItem>
           )}
         />
+
+        {/* Placeholder */}
         <FormField
           control={form.control}
           name="placeholder"
@@ -202,17 +220,17 @@ function PropertiesComponent({ elementInstance }: { elementInstance: FormElement
             <FormItem>
               <FormLabel>Placeholder</FormLabel>
               <FormControl>
-                <Input
-                  {...field}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") e.currentTarget.blur();
-                  }}
+                <Input {...field} placeholder="Enter placeholder text"
+                  onKeyDown={(e) => { if (e.key === "Enter") e.currentTarget.blur(); }}
                 />
               </FormControl>
+              <FormDescription>The placeholder text when no option is selected</FormDescription>
               <FormMessage />
             </FormItem>
           )}
         />
+
+        {/* Helper Text */}
         <FormField
           control={form.control}
           name="helperText"
@@ -220,17 +238,17 @@ function PropertiesComponent({ elementInstance }: { elementInstance: FormElement
             <FormItem>
               <FormLabel>Helper Text</FormLabel>
               <FormControl>
-                <Input
-                  {...field}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") e.currentTarget.blur();
-                  }}
+                <Input {...field} placeholder="Enter helper text"
+                  onKeyDown={(e) => { if (e.key === "Enter") e.currentTarget.blur(); }}
                 />
               </FormControl>
+              <FormDescription>Additional information or instructions</FormDescription>
               <FormMessage />
             </FormItem>
           )}
         />
+
+        {/* Options */}
         <FormField
           control={form.control}
           name="options"
@@ -242,17 +260,20 @@ function PropertiesComponent({ elementInstance }: { elementInstance: FormElement
                   {...field}
                   value={field.value.join(",")}
                   onChange={(e) => {
-                    field.onChange(e.target.value.split(","));
+                    const options = e.target.value.split(",").map(opt => opt.trim()).filter(opt => opt.length > 0);
+                    field.onChange(options.length > 0 ? options : ["Option 1"]);
                   }}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") e.currentTarget.blur();
-                  }}
+                  onKeyDown={(e) => { if (e.key === "Enter") e.currentTarget.blur(); }}
+                  placeholder="Option 1, Option 2, Option 3"
                 />
               </FormControl>
+              <FormDescription>Enter the available options separated by commas</FormDescription>
               <FormMessage />
             </FormItem>
           )}
         />
+
+        {/* Required */}
         <FormField
           control={form.control}
           name="required"
@@ -260,13 +281,12 @@ function PropertiesComponent({ elementInstance }: { elementInstance: FormElement
             <FormItem className="flex items-center justify-between rounded-lg border p-3 shadow-sm">
               <div className="space-y-0.5">
                 <FormLabel>Required</FormLabel>
+                <FormDescription>Whether this field is required</FormDescription>
               </div>
               <FormControl>
-                <Switch
-                  checked={field.value}
-                  onCheckedChange={field.onChange}
-                />
+                <Switch checked={field.value} onCheckedChange={field.onChange} />
               </FormControl>
+              <FormMessage />
             </FormItem>
           )}
         />

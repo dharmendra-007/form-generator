@@ -5,7 +5,7 @@ import { Header } from '../header'
 
 function Dashboard() {
   return (
-    <div className="min-h-screen bg-gray-900">
+    <div className="min-h-screen bg-gray-900 lg:px-14 md:px-6 sm:px-4 px-4">
       <Header />
       <main className="container mx-auto px-4 py-8">
         <div className="rounded-lg border border-gray-700 bg-gray-800 p-6 mb-8">

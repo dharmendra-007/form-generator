@@ -26,7 +26,7 @@ function FormBuilder({ form }: {
     id: string;
     userId: string;
     createdAt: string;
-    publishd: boolean;
+    published: boolean;
     content: FormElementInstance[];
     visits: number;
     submissions: number;
@@ -75,7 +75,7 @@ function FormBuilder({ form }: {
 
   const shareUrl = `${window.location.origin}/submit/${form?.shareUrl}`;
 
-  if (form?.publishd) {
+  if (form?.published) {
     const handleCopy = () => {
       navigator.clipboard.writeText(shareUrl);
       setCopied(true);
@@ -142,7 +142,7 @@ function FormBuilder({ form }: {
           </h2>
           <div className='flex items-center gap-2'>
             <PreviewDialogButton />
-            {form && !form.publishd && (
+            {form && !form.published && (
               <>
                 <SaveFormButton id={form.id} />
                 <PublishFormButton id={form.id} />

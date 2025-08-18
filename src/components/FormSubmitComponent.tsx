@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, useCallback, useState, useTransition } from "react";
+import React, { useRef, useCallback, useState} from "react";
 import { FormElements } from "./FormElements";
 import { Button } from "./ui/button";
 import { HiCursorClick } from "react-icons/hi";
@@ -11,15 +11,17 @@ import API from "@/lib/axios";
 function FormSubmitComponent({
   formUrl,
   content,
+  userId
 }: {
   content: FormElementInstance[];
   formUrl: string;
+  userId: string
 }) {
   const formValues = useRef<{ [key: string]: string }>({});
   const formErrors = useRef<{ [key: string]: boolean }>({});
   const [renderKey, setRenderKey] = useState(Date.now());
   const [submitted, setSubmitted] = useState(false);
-  const [pending, startTransition] = useTransition();
+  const [loading, setLoading] = useState<boolean>(false)
 
   const validateForm: () => boolean = useCallback(() => {
     formErrors.current = {};
@@ -43,20 +45,20 @@ function FormSubmitComponent({
   }, []);
 
   const submitForm = () => {
+    setLoading(true)
     const isValid = validateForm();
+    const jsonContent = formValues.current;
     if (!isValid) {
       toast.error("Please fix validation errors before submitting.");
+      setLoading(false)
       return;
     }
-
-    startTransition(() => {
-      const jsonContent = formValues.current;
-
-      API.put(`/api/v1/form/submit`, {
+    API.put(`/api/v1/form/submit`, {
         formUrl,
         content: jsonContent,
+        userId : userId
       })
-        .then((res) => {
+      .then((res) => {
           const message = res.data.message || "Form submitted successfully";
           toast.success(message);
           setSubmitted(true);
@@ -64,14 +66,14 @@ function FormSubmitComponent({
         .catch((error) => {
           const message = error?.response?.data?.message || "Something went wrong";
           toast.error(message);
-        });
-    });
+        })
+        .finally(() => setLoading(false))
   };
 
   if (submitted) {
     return (
       <div className="flex justify-center w-full h-screen items-center p-8">
-        <div className="max-w-[620px] flex flex-col gap-4 flex-grow bg-background w-full p-8 overflow-auto border shadow-xl shadow-blue-700 rounded">
+        <div className="max-w-[620px] flex flex-col gap-4 flex-grow bg-background w-full p-8 overflow-auto border shadow-xl shadow-green-700 rounded">
           <h1 className="text-2xl font-bold">Form submitted</h1>
           <p className="text-muted-foreground">Thank you for submitting the form.</p>
         </div>
@@ -83,9 +85,9 @@ function FormSubmitComponent({
     <div className="flex justify-center w-full h-full min-h-screen items-center p-8">
       <div
         key={renderKey}
-        className="max-w-[620px] flex flex-col gap-4 flex-grow bg-background w-full p-8 overflow-y-auto border shadow-xl shadow-blue-700 rounded-xl"
+        className="max-w-[620px] flex flex-col gap-4 flex-grow bg-background w-full p-8 overflow-y-auto border shadow-xl shadow-green-700 rounded-xl"
       >
-        {content.map((element) => {
+        {Array.isArray(content) && content.map((element) => {
           const FormElement = FormElements[element.type].formComponent;
           return (
             <FormElement
@@ -98,8 +100,8 @@ function FormSubmitComponent({
           );
         })}
 
-        <Button className="mt-8" onClick={submitForm} disabled={pending}>
-          {pending ? "Submitting..." : (
+        <Button className="mt-8 cursor-pointer" onClick={submitForm} disabled={loading}>
+          {loading ? "Submitting..." : (
             <>
               <HiCursorClick className="mr-2" />
               Submit

@@ -1,4 +1,4 @@
-export type ElementsType = "TextField" | "TitleField"  | "SubtitleField" |"ParagraphField" | "SeparatorField" | "NumberField" | "TextAreaField" | "SelectField" |  "CheckboxField" | "EmailField";
+export type ElementsType = "TextField" | "TitleField"  | "SubtitleField" |"ParagraphField" | "SeparatorField" | "NumberField" | "TextAreaField" | "SelectField" |  "CheckboxField" | "EmailField" | "RadioButtonField";
 
 export type SubmitFunction = (key: string, value: string) => void;
 

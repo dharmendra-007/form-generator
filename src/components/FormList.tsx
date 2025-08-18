@@ -6,7 +6,7 @@ type form = formSchemaType & {
   id: string;
   userId: string;
   createdAt: string;
-  publishd: boolean;
+  published: boolean;
   content: FormElementInstance[];
   visits: number;
   submissions: number;
@@ -22,10 +22,10 @@ function getPublishedProp(form: object): boolean {
       return (form as { published: boolean }).published;
     }
     if (
-      "publishd" in form &&
-      typeof (form as { publishd: unknown }).publishd === "boolean"
+      "published" in form &&
+      typeof (form as { published: unknown }).published === "boolean"
     ) {
-      return (form as { publishd: boolean }).publishd;
+      return (form as { published: boolean }).published;
     }
   }
   return false;
