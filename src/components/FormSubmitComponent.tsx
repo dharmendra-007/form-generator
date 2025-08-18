@@ -100,7 +100,7 @@ function FormSubmitComponent({
           );
         })}
 
-        <Button className="mt-8 cursor-pointer" onClick={submitForm} disabled={loading}>
+        <Button className="mt-8 h-[3rem] cursor-pointer" onClick={submitForm} disabled={loading}>
           {loading ? "Submitting..." : (
             <>
               <HiCursorClick className="mr-2" />
