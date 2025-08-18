@@ -9,12 +9,13 @@ import API from '@/lib/axios';
 import { useAuth } from '@/hooks/useAuth';
 import { Loader2 } from 'lucide-react';
 import StatsCards from './StatsCards';
+import { SubmissionsTable } from './submissionTable';
 
 type formType = formSchemaType & {
   id: string;
   userId: string;
   createdAt: string;
-  publishd: boolean;
+  published: boolean;
   content: FormElementInstance[];
   visits: number;
   submissions: number;
@@ -63,7 +64,7 @@ function FormWrapper({ id }: {
   }
 
   return (
-    <div className='container mx-auto px-4 py-7'>
+    <div className='container mx-auto lg:px-14 md:px-6 sm:px-4 px-4 py-7'>
       <div className="py-4 border-b border-muted">
         <div className="flex justify-between items-center">
           <h1 className="text-4xl font-bold truncate py-2">{form != undefined ? form.name : ""}</h1>
@@ -83,6 +84,8 @@ function FormWrapper({ id }: {
           bounceRate,
           submissionRate
         }} />
+
+      <SubmissionsTable id={id}/>
     </div>
   );
 }

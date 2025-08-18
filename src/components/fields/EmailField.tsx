@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { MdEmail } from "react-icons/md";
 import { ElementsType, FormElement, FormElementInstance } from "@/types/formElementType";
 import { Label } from "../ui/label";
@@ -18,6 +18,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Switch } from "../ui/switch";
+import { cn } from "@/lib/utils";
 
 const type: ElementsType = "EmailField";
 
@@ -53,10 +54,9 @@ export const EmailFieldFormElement: FormElement = {
   propertiesComponent: PropertiesComponent,
   validate: (formElement: FormElementInstance, currentValue: string) => {
     const element = formElement as CustomInstance;
-    if (element.extraAttributes.required) {
-      return currentValue.length > 0 && /^\S+@\S+\.\S+$/.test(currentValue);
-    }
-    return currentValue ? /^\S+@\S+\.\S+$/.test(currentValue) : true;
+    const requiredCheck = element.extraAttributes.required;
+    const validEmail = /^\S+@\S+\.\S+$/.test(currentValue);
+    return requiredCheck ? currentValue.trim().length > 0 && validEmail : !currentValue || validEmail;
   },
 };
 
@@ -64,31 +64,23 @@ type CustomInstance = FormElementInstance & {
   extraAttributes: typeof extraAttributes;
 };
 
+// --------------------- Designer Component ---------------------
 function DesignerComponent({ elementInstance }: { elementInstance: FormElementInstance }) {
   const element = elementInstance as CustomInstance;
-  const { label, required, placeholder } = element.extraAttributes;
+  const { label, required, placeholder, helperText } = element.extraAttributes;
 
   return (
     <div className="flex flex-col gap-2 w-full">
       <Label>
-        {label}
-        {required && <span className="text-red-500 ml-1">*</span>}
+        {label}{required && <span className="text-red-500">*</span>}
       </Label>
-      <Input 
-        type="email" 
-        readOnly 
-        disabled 
-        placeholder={placeholder} 
-      />
-      {element.extraAttributes.helperText && (
-        <p className="text-muted-foreground text-[0.8rem]">
-          {element.extraAttributes.helperText}
-        </p>
-      )}
+      <Input type="email" readOnly disabled placeholder={placeholder} />
+      {helperText && <p className="text-muted-foreground text-[0.8rem]">{helperText}</p>}
     </div>
   );
 }
 
+// --------------------- Form Component ---------------------
 function FormComponent({
   elementInstance,
   submitValue,
@@ -102,46 +94,68 @@ function FormComponent({
 }) {
   const element = elementInstance as CustomInstance;
   const { label, required, placeholder, helperText } = element.extraAttributes;
-  const [value, setValue] = React.useState(defaultValue || "");
-  const [error, setError] = React.useState(false);
 
-  React.useEffect(() => {
-    setError(isInvalid === true);
-  }, [isInvalid]);
+  const [value, setValue] = useState(defaultValue || "");
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (isInvalid) {
+      setError(required ? "This field is required and must be a valid email" : "Please enter a valid email");
+    } else {
+      setError(null);
+    }
+  }, [isInvalid, required]);
+
+  const validateField = (val: string) => {
+    if (required && val.trim() === "") {
+      setError("This field is required");
+      return false;
+    }
+    if (val && !/^\S+@\S+\.\S+$/.test(val)) {
+      setError("Please enter a valid email");
+      return false;
+    }
+    setError(null);
+    return true;
+  };
+
+  const handleChange = (val: string) => {
+    setValue(val);
+    validateField(val);
+  };
+
+  const handleBlur = () => {
+    const valid = validateField(value);
+    if (valid && submitValue) submitValue(element.id, value);
+  };
 
   return (
     <div className="flex flex-col gap-2 w-full">
-      <Label className={error ? "text-red-500" : ""}>
-        {label}
-        {required && <span className="text-red-500 ml-1">*</span>}
+      <Label className={cn(error && "text-red-500")}>
+        {label}{required && <span className="text-red-500">*</span>}
       </Label>
       <Input
         type="email"
         value={value}
         placeholder={placeholder}
-        onChange={(e) => {
-          setValue(e.target.value);
-          if (submitValue) submitValue(element.id, e.target.value);
-        }}
-        className={error ? "border-red-500" : ""}
+        className={cn(error && "border-red-500")}
+        onChange={(e) => handleChange(e.target.value)}
+        onBlur={handleBlur}
       />
-      {helperText && (
-        <p className={`text-[0.8rem] ${error ? "text-red-500" : "text-muted-foreground"}`}>
-          {helperText}
-        </p>
-      )}
-      {error && (
-        <p className="text-red-500 text-[0.8rem]">
-          {required ? "This field is required and must be a valid email" : "Please enter a valid email"}
-        </p>
+      {error ? (
+        <p className="text-red-500 text-[0.8rem]">{error}</p>
+      ) : (
+        helperText && <p className="text-muted-foreground text-[0.8rem]">{helperText}</p>
       )}
     </div>
   );
 }
 
+// --------------------- Properties Component ---------------------
 function PropertiesComponent({ elementInstance }: { elementInstance: FormElementInstance }) {
   const element = elementInstance as CustomInstance;
   const { updateElement } = useDesigner();
+
   const form = useForm<PropertiesFormSchemaType>({
     resolver: zodResolver(propertiesSchema),
     mode: "onBlur",
@@ -153,22 +167,20 @@ function PropertiesComponent({ elementInstance }: { elementInstance: FormElement
     },
   });
 
-  function applyChanges(values: PropertiesFormSchemaType) {
+  useEffect(() => {
+    form.reset(element.extraAttributes);
+  }, [element, form]);
+
+  const applyChanges = (values: PropertiesFormSchemaType) => {
     updateElement(element.id, {
       ...element,
-      extraAttributes: {
-        ...values,
-      },
+      extraAttributes: { ...values },
     });
-  }
+  };
 
   return (
     <Form {...form}>
-      <form
-        onBlur={form.handleSubmit(applyChanges)}
-        onSubmit={(e) => e.preventDefault()}
-        className="space-y-3"
-      >
+      <form onBlur={form.handleSubmit(applyChanges)} onSubmit={(e) => e.preventDefault()} className="space-y-3">
         <FormField
           control={form.control}
           name="label"
@@ -217,7 +229,7 @@ function PropertiesComponent({ elementInstance }: { elementInstance: FormElement
                 <FormLabel>Required</FormLabel>
               </div>
               <FormControl>
-                <Switch checked={field.value} onCheckedChange={field.onChange}/>
+                <Switch checked={field.value} onCheckedChange={field.onChange} />
               </FormControl>
             </FormItem>
           )}

@@ -146,14 +146,16 @@ function PropertiesComponent({ elementInstance }: { elementInstance: FormElement
         onSubmit={(e) => e.preventDefault()}
         className="space-y-3"
       >
+        {/* Subtitle Text */}
         <FormField
           name="text"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Subtitle Text</FormLabel>
+              <FormLabel htmlFor="subtitle-text">Subtitle Text</FormLabel>
               <FormControl>
                 <Input
                   {...field}
+                  id="subtitle-text"
                   placeholder="Enter subtitle text"
                   onKeyDown={(e) => {
                     if (e.key === "Enter") e.currentTarget.blur();
@@ -166,14 +168,16 @@ function PropertiesComponent({ elementInstance }: { elementInstance: FormElement
           )}
         />
 
+        {/* Text Size */}
         <FormField
           name="size"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Text Size</FormLabel>
+              <FormLabel htmlFor="subtitle-size">Text Size</FormLabel>
               <FormControl>
                 <select
                   {...field}
+                  id="subtitle-size"
                   className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   <option value="sm">Small</option>
@@ -187,16 +191,18 @@ function PropertiesComponent({ elementInstance }: { elementInstance: FormElement
           )}
         />
 
+        {/* Italic Checkbox */}
         <FormField
           name="italic"
           render={({ field }) => (
             <FormItem className="flex items-center justify-between rounded-lg border p-3 shadow-sm">
               <div className="space-y-0.5">
-                <FormLabel>Italic</FormLabel>
+                <FormLabel htmlFor="subtitle-italic">Italic</FormLabel>
                 <FormDescription>Display text in italic style</FormDescription>
               </div>
               <FormControl>
-                <input
+                <Input
+                  id="subtitle-italic"
                   type="checkbox"
                   checked={field.value}
                   onChange={field.onChange}
@@ -208,16 +214,18 @@ function PropertiesComponent({ elementInstance }: { elementInstance: FormElement
           )}
         />
 
+        {/* Muted Checkbox */}
         <FormField
           name="muted"
           render={({ field }) => (
             <FormItem className="flex items-center justify-between rounded-lg border p-3 shadow-sm">
               <div className="space-y-0.5">
-                <FormLabel>Muted Color</FormLabel>
+                <FormLabel htmlFor="subtitle-muted">Muted Color</FormLabel>
                 <FormDescription>Use muted text color</FormDescription>
               </div>
               <FormControl>
-                <input
+                <Input
+                  id="subtitle-muted"
                   type="checkbox"
                   checked={field.value}
                   onChange={field.onChange}

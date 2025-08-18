@@ -17,25 +17,34 @@ import {
 import { toast } from 'sonner';
 import API from '@/lib/axios';
 import { useAuth } from '@/hooks/useAuth';
+import useDesigner from '@/hooks/useDesigner';
 
 
 function PublishFormButton({ id }: { id: string }) {
-
+  const { elements } = useDesigner();
   const { user } = useAuth()
+  const JsonElements = JSON.stringify(elements);
   const [loading, setLoading] = useState<boolean>(false);
   const [dialogOpen, setDialogOpen] = useState(false);
 
   async function publishForm({ id }: { id: string }) {
     setLoading(true)
-    API.put(`/api/v1/form/publish`, {
+    API.put('/api/v1/form/updateform', {
       userId: user?.userId,
-      formId: id
+      formId: id,
+      jsonContent: JsonElements,
     })
       .then(() => {
-        toast("Success", {
-          description: "Form published successfully",
-        });
-        window.location.reload()
+        API.put(`/api/v1/form/publish`, {
+          userId: user?.userId,
+          formId: id
+        })
+          .then(() => {
+            toast("Success", {
+              description: "Form published successfully",
+            });
+            window.location.reload()
+          })
       })
       .catch((error) => {
         const message = error.response.data.message || "Something went wrong"

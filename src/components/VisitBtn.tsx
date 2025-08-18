@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { Button } from "./ui/button";
+import { ExternalLink } from "lucide-react";
 
 function VisitBtn({ shareUrl }: { shareUrl: string}) {
   const [mounted, setMounted] = useState(false);
@@ -21,7 +22,7 @@ function VisitBtn({ shareUrl }: { shareUrl: string}) {
         window.open(shareLink, "_blank");
       }}
     >
-      Visit
+      Visit <ExternalLink />
     </Button>
   );
 }

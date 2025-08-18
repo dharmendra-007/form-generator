@@ -8,12 +8,14 @@ export function SubmitPageWrapper({formUrl} : {
   formUrl : string
 }) {
   const [formContent, setFormContent] = useState<FormElementInstance[]>([])
+  const [userId , setUserId] = useState("")
 
   useEffect(() => {
     API.put(`/api/v1/form/getformbyurl/${formUrl}`)
     .then((res) => {
       const content = JSON.parse(res.data.content.content) as FormElementInstance[]
       setFormContent(content)
+      setUserId(res.data.content.userId)
     })
     .catch((error) => {
       const message = error.response.data.message || "No content found"
@@ -22,6 +24,6 @@ export function SubmitPageWrapper({formUrl} : {
   }, [])
   
   return (
-    <FormSubmitComponent formUrl={formUrl} content={formContent}/>
+    <FormSubmitComponent formUrl={formUrl} content={formContent} userId={userId}/>
   )
 }

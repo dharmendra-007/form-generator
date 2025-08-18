@@ -1,17 +1,18 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { ElementsType, FormElement, FormElementInstance } from "@/types/formElementType";
 import { Textarea } from "../ui/textarea";
 import { Label } from "../ui/label";
-import { MdTextFields } from "react-icons/md"; // ✅ using react-icons/md
+import { MdTextFields } from "react-icons/md";
 import useDesigner from "@/hooks/useDesigner";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "../ui/input";
-import { Switch } from "../ui/switch"; 
+import { Switch } from "../ui/switch";
+import { cn } from "@/lib/utils";
 
 const type: ElementsType = "TextAreaField";
 
@@ -47,7 +48,7 @@ export const TextAreaFieldFormElement: FormElement = {
   designerComponent: DesignerComponent,
   formComponent: FormComponent,
   propertiesComponent: PropertiesComponent,
-  validate: (element: FormElementInstance, currentValue: string) => {
+  validate: (element: FormElementInstance, currentValue: string): boolean => {
     const el = element as CustomInstance;
     if (el.extraAttributes.required) {
       return currentValue.trim().length > 0;
@@ -60,6 +61,7 @@ type CustomInstance = FormElementInstance & {
   extraAttributes: typeof extraAttributes;
 };
 
+// --------------------- Designer Component ---------------------
 function DesignerComponent({ elementInstance }: { elementInstance: FormElementInstance }) {
   const element = elementInstance as CustomInstance;
   const { label, required, placeholder, helperText, rows } = element.extraAttributes;
@@ -70,12 +72,13 @@ function DesignerComponent({ elementInstance }: { elementInstance: FormElementIn
         {label}
         {required && <span className="text-red-500">*</span>}
       </Label>
-      <Textarea placeholder={placeholder} rows={rows} disabled />
-      {helperText && <p className="text-muted-foreground text-sm">{helperText}</p>}
+      <Textarea placeholder={placeholder} rows={rows} readOnly />
+      {helperText && <p className="text-muted-foreground text-[0.8rem]">{helperText}</p>}
     </div>
   );
 }
 
+// --------------------- Form Component ---------------------
 function FormComponent({
   elementInstance,
   submitValue,
@@ -89,38 +92,62 @@ function FormComponent({
 }) {
   const element = elementInstance as CustomInstance;
   const { label, required, placeholder, helperText, rows } = element.extraAttributes;
-  const [value, setValue] = React.useState(defaultValue || "");
-  const [error, setError] = React.useState(false);
 
-  React.useEffect(() => {
-    setError(isInvalid === true);
-  }, [isInvalid]);
+  const [value, setValue] = useState(defaultValue || "");
+  const [error, setError] = useState<string | null>(null);
+
+  // Sync error state with parent validation
+  useEffect(() => {
+    if (isInvalid) {
+      setError(required ? "This field is required" : "Invalid value");
+    } else {
+      setError(null);
+    }
+  }, [isInvalid, required]);
+
+  const validateField = (val: string) => {
+    if (required && val.trim() === "") {
+      setError("This field is required");
+      return false;
+    }
+    setError(null);
+    return true;
+  };
+
+  const handleChange = (val: string) => {
+    setValue(val);
+    validateField(val);
+  };
+
+  const handleBlur = () => {
+    const valid = validateField(value);
+    if (valid && submitValue) submitValue(element.id, value);
+  };
 
   return (
     <div className="flex flex-col gap-2 w-full">
-      <Label className={error ? "text-red-500" : ""}>
+      <Label className={cn(error && "text-red-500")}>
         {label}
         {required && <span className="text-red-500">*</span>}
       </Label>
       <Textarea
+        className={cn(error && "border-red-500")}
         placeholder={placeholder}
         rows={rows}
         value={value}
-        className={error ? "border-red-500" : ""}
-        onChange={(e) => {
-          setValue(e.target.value);
-          submitValue?.(element.id, e.target.value);
-        }}
+        onChange={(e) => handleChange(e.target.value)}
+        onBlur={handleBlur}
       />
-      {helperText && (
-        <p className={error ? "text-red-500 text-sm" : "text-muted-foreground text-sm"}>
-          {helperText}
-        </p>
+      {error ? (
+        <p className="text-red-500 text-[0.8rem]">{error}</p>
+      ) : (
+        helperText && <p className="text-muted-foreground text-[0.8rem]">{helperText}</p>
       )}
     </div>
   );
 }
 
+// --------------------- Properties Component ---------------------
 function PropertiesComponent({ elementInstance }: { elementInstance: FormElementInstance }) {
   const element = elementInstance as CustomInstance;
   const { updateElement } = useDesigner();
@@ -137,16 +164,26 @@ function PropertiesComponent({ elementInstance }: { elementInstance: FormElement
     },
   });
 
-  function applyChanges(values: PropertiesFormSchemaType) {
+  useEffect(() => {
+    form.reset(element.extraAttributes);
+  }, [element, form]);
+
+  const applyChanges = (values: PropertiesFormSchemaType) => {
+    const { label, helperText, placeholder, required, rows } = values;
     updateElement(element.id, {
       ...element,
-      extraAttributes: values,
+      extraAttributes: { label, helperText, required, placeholder, rows }
     });
-  }
+  };
 
   return (
     <Form {...form}>
-      <form onBlur={form.handleSubmit(applyChanges)} onSubmit={(e) => e.preventDefault()} className="space-y-3">
+      <form
+        onBlur={form.handleSubmit(applyChanges)}
+        onSubmit={(e) => e.preventDefault()}
+        className="space-y-3"
+      >
+        {/* Label */}
         <FormField
           control={form.control}
           name="label"
@@ -154,12 +191,17 @@ function PropertiesComponent({ elementInstance }: { elementInstance: FormElement
             <FormItem>
               <FormLabel>Label</FormLabel>
               <FormControl>
-                <Input {...field} onKeyDown={(e) => e.key === "Enter" && e.currentTarget.blur()} />
+                <Input {...field} placeholder="Enter field label"
+                  onKeyDown={(e) => { if (e.key === "Enter") e.currentTarget.blur(); }}
+                />
               </FormControl>
+              <FormDescription>The label displayed above the field</FormDescription>
               <FormMessage />
             </FormItem>
           )}
         />
+
+        {/* Placeholder */}
         <FormField
           control={form.control}
           name="placeholder"
@@ -167,12 +209,17 @@ function PropertiesComponent({ elementInstance }: { elementInstance: FormElement
             <FormItem>
               <FormLabel>Placeholder</FormLabel>
               <FormControl>
-                <Input {...field} onKeyDown={(e) => e.key === "Enter" && e.currentTarget.blur()} />
+                <Input {...field} placeholder="Enter placeholder text"
+                  onKeyDown={(e) => { if (e.key === "Enter") e.currentTarget.blur(); }}
+                />
               </FormControl>
+              <FormDescription>The placeholder text when empty</FormDescription>
               <FormMessage />
             </FormItem>
           )}
         />
+
+        {/* Helper Text */}
         <FormField
           control={form.control}
           name="helperText"
@@ -180,12 +227,17 @@ function PropertiesComponent({ elementInstance }: { elementInstance: FormElement
             <FormItem>
               <FormLabel>Helper Text</FormLabel>
               <FormControl>
-                <Input {...field} onKeyDown={(e) => e.key === "Enter" && e.currentTarget.blur()} />
+                <Input {...field} placeholder="Enter helper text"
+                  onKeyDown={(e) => { if (e.key === "Enter") e.currentTarget.blur(); }}
+                />
               </FormControl>
+              <FormDescription>Additional information or instructions</FormDescription>
               <FormMessage />
             </FormItem>
           )}
         />
+
+        {/* Rows */}
         <FormField
           control={form.control}
           name="rows"
@@ -196,14 +248,18 @@ function PropertiesComponent({ elementInstance }: { elementInstance: FormElement
                 <Input
                   type="number"
                   {...field}
-                  onChange={(e) => field.onChange(parseInt(e.target.value))}
-                  onKeyDown={(e) => e.key === "Enter" && e.currentTarget.blur()}
+                  onChange={(e) => field.onChange(parseInt(e.target.value) || 1)}
+                  onKeyDown={(e) => { if (e.key === "Enter") e.currentTarget.blur(); }}
+                  placeholder="Number of rows"
                 />
               </FormControl>
+              <FormDescription>Height of the text area (1-10 rows)</FormDescription>
               <FormMessage />
             </FormItem>
           )}
         />
+
+        {/* Required */}
         <FormField
           control={form.control}
           name="required"
@@ -211,10 +267,12 @@ function PropertiesComponent({ elementInstance }: { elementInstance: FormElement
             <FormItem className="flex items-center justify-between rounded-lg border p-3 shadow-sm">
               <div className="space-y-0.5">
                 <FormLabel>Required</FormLabel>
+                <FormDescription>Whether this field is required</FormDescription>
               </div>
               <FormControl>
                 <Switch checked={field.value} onCheckedChange={field.onChange} />
               </FormControl>
+              <FormMessage />
             </FormItem>
           )}
         />
