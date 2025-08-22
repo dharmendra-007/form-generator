@@ -5,7 +5,7 @@ import { ElementsType, FormElement, FormElementInstance } from "@/types/formElem
 import { MdTextFields } from "react-icons/md";
 import { Label } from '../ui/label';
 import { Input } from '../ui/input';
-import { textFieldPropertiesSchema, textFieldPropertiesType } from '@/schemas/propertiesSchema';
+import { textFieldPropertiesSchema, textFieldPropertiesType } from '@/validations/propertiesSchema';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {

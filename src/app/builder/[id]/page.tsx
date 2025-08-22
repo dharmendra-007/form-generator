@@ -1,5 +1,5 @@
 import React from 'react'
-import BuildFormWrapper from '@/components/buildFormWrapper';
+import BuildFormWrapper from '@/components/builder/buildFormWrapper';
 
 export default async function BuilderPage({
   params,

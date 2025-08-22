@@ -1,8 +1,8 @@
 "use client"
 
 import { useAuth } from "@/hooks/useAuth";
-import UnauthenticatedLandingPage from "@/components/pages/unauthenticatedLandingPage";
-import Dashboard from "@/components/pages/dashboard";
+import UnauthenticatedLandingPage from "@/components/layouts/unauthenticatedLandingPage";
+import Dashboard from "@/components/layouts/dashboard";
 
 export default function Home() {
   const {isAuthenticated} = useAuth()
