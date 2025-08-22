@@ -97,7 +97,7 @@ src/
 - **Styling**: Tailwind CSS + shadcn/ui components
 - **State Management**: React Context API
 - **Form Handling**: React Hook Form with Zod validation
-- **Drag & Drop**: React DnD (inferred from component structure)
+- **Drag & Drop**: React DnD
 - **HTTP Client**: Axios
 
 ## ⭐ **Core Functionality**
