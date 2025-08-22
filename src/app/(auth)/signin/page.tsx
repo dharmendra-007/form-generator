@@ -18,7 +18,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Eye, EyeOff, Loader } from "lucide-react";
 import Link from "next/link";
 import { useAuth } from "@/hooks/useAuth";
-import { SignInFormData, signInSchema } from "@/schemas/authSchema";
+import { SignInFormData, signInSchema } from "@/validations/authSchema";
 import API from "@/lib/axios";
 import { toast } from "sonner";
 

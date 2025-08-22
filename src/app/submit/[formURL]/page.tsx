@@ -1,4 +1,4 @@
-import { SubmitPageWrapper } from "@/components/pages/submitPage";
+import { SubmitPageWrapper } from "@/components/layouts/submitPage";
 
 async function SubmitPage({ params }: {
   params: Promise<{ formURL: string }>
