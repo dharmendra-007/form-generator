@@ -17,7 +17,7 @@ function PreviewDialogButton() {
           <DialogTitle className='text-lg font-bold text-muted-foreground'> Form preview</DialogTitle>
           <p className='text-sm text-muted-foreground'> This is how your form will look</p>
         </div>
-        <div className='bg-accent flex flex-col flex-grow items-center justify-center p-4 bg-[url(/paper.svg)] dark:bg-[url(/paper-dark.svg)] overflow-y-auto '>
+        <div className='bg-accent flex flex-col flex-grow items-center justify-center p-4 bg-[url(/images/paper.svg)] dark:bg-[url(/images/paper-dark.svg)] overflow-y-auto '>
           <div className='max-w-[620px] flex flex-col gap-4 flex-grow bg-background h-full w-full rounded-2xl p-8 overflow-y-auto'>
             {Array.isArray(elements) &&
               elements.map((element) => {
