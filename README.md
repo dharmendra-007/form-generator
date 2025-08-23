@@ -70,7 +70,7 @@ yarn dev
 
 ```
 src/
-├── app/                    # Next.js app router pages
+├── app/                   # Next.js app router pages
 │   ├── (auth)/            # Authentication pages
 │   ├── builder/[id]/      # Form builder interface
 │   ├── forms/[id]/        # Form management and analytics
