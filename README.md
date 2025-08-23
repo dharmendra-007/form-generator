@@ -134,7 +134,6 @@ src/
 
 The application uses several configuration files:
 - `next.config.ts` - Next.js configuration
-- `tailwind.config.js` - Tailwind CSS configuration
 - `components.json` - shadcn/ui component configuration
 - `tsconfig.json` - TypeScript configuration
 
