@@ -39,7 +39,7 @@ export default function SignUp() {
       userEmail: "",
       userPassword: "",
       userRegistrationNumber: "",
-      userAvtar: "https://i.pravatar.cc/150?img=3",
+      userAvtar: "https://avatar.iran.liara.run/public/1",
     },
   });
 

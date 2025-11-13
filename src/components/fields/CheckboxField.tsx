@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { MdNumbers } from "react-icons/md";
+import { MdCheckBox } from "react-icons/md";
 import { ElementsType, FormElement, FormElementInstance } from "@/types/formElementType";
 import { Label } from "../ui/label";
 import { Checkbox } from "../ui/checkbox";
@@ -25,15 +25,17 @@ import { cn } from "@/lib/utils";
 const type: ElementsType = "CheckboxField";
 
 const extraAttributes = {
-  label: "Accept Terms and Conditions",
-  helperText: "You must agree to proceed",
-  required: true,
+  label: "Select your interests",
+  helperText: "Choose all that apply",
+  required: false,
+  options: ["Option 1", "Option 2", "Option 3"],
 };
 
 const propertiesSchema = z.object({
   label: z.string().min(2).max(50),
   helperText: z.string().max(200),
   required: z.boolean(),
+  options: z.array(z.string()).min(1),
 });
 
 type PropertiesFormSchemaType = z.infer<typeof propertiesSchema>;
@@ -46,8 +48,8 @@ export const CheckboxFieldFormElement: FormElement = {
     extraAttributes,
   }),
   designerButtonElement: {
-    Icon: MdNumbers,
-    label: "Checkbox Field",
+    Icon: MdCheckBox,
+    label: "Checkbox Group",
   },
   designerComponent: DesignerComponent,
   formComponent: FormComponent,
@@ -55,7 +57,8 @@ export const CheckboxFieldFormElement: FormElement = {
   validate: (formElement: FormElementInstance, currentValue: string): boolean => {
     const element = formElement as CustomInstance;
     if (element.extraAttributes.required) {
-      return currentValue === "true";
+      // For multiple checkboxes, check if at least one is selected
+      return currentValue.trim().length > 0;
     }
     return true;
   },
@@ -68,15 +71,25 @@ type CustomInstance = FormElementInstance & {
 // --------------------- Designer Component ---------------------
 function DesignerComponent({ elementInstance }: { elementInstance: FormElementInstance }) {
   const element = elementInstance as CustomInstance;
-  const { label, helperText } = element.extraAttributes;
+  const { label, helperText, required, options } = element.extraAttributes;
 
   return (
     <div className="flex flex-col gap-2 w-full">
-      <div className="flex flex-row gap-2 items-center">
-        <Checkbox disabled />
-        <Label>{label}</Label>
+      <Label>
+        {label}
+        {required && <span className="text-red-500 ml-1">*</span>}
+      </Label>
+      <div className="flex gap-2">
+        {options.map((option, index) => (
+          <div key={index} className="flex items-center space-x-2">
+            <Checkbox disabled id={`${option}-${index}`} />
+            <Label htmlFor={`${option}-${index}`} className="text-sm font-normal">
+              {option}
+            </Label>
+          </div>
+        ))}
       </div>
-      {helperText && <p className="text-muted-foreground text-[0.8rem] ml-6">{helperText}</p>}
+      {helperText && <p className="text-muted-foreground text-[0.8rem]">{helperText}</p>}
     </div>
   );
 }
@@ -94,52 +107,77 @@ function FormComponent({
   defaultValue?: string;
 }) {
   const element = elementInstance as CustomInstance;
-  const { label, required, helperText } = element.extraAttributes;
+  const { label, required, helperText, options } = element.extraAttributes;
 
-  const [checked, setChecked] = useState(defaultValue === "true");
+  // Parse default values (comma-separated string of selected options)
+  const [selectedOptions, setSelectedOptions] = useState<string[]>(
+    defaultValue ? defaultValue.split(",").filter(v => v.trim()) : []
+  );
   const [error, setError] = useState<string | null>(null);
 
-  // Sync error state with parent validation
   useEffect(() => {
     if (isInvalid) {
-      setError(required ? "This field is required" : "Invalid value");
+      setError(required ? "Please select at least one option" : "Invalid selection");
     } else {
       setError(null);
     }
   }, [isInvalid, required]);
 
-  const validateField = (isChecked: boolean) => {
-    if (required && !isChecked) {
-      setError("This field is required");
+  const validateField = (selected: string[]) => {
+    if (required && selected.length === 0) {
+      setError("Please select at least one option");
       return false;
     }
     setError(null);
     return true;
   };
 
-  const handleChange = (isChecked: boolean) => {
-    setChecked(isChecked);
-    validateField(isChecked);
-    if (submitValue) submitValue(element.id, isChecked.toString());
+  const handleChange = (option: string, isChecked: boolean) => {
+    let newSelected: string[];
+    
+    if (isChecked) {
+      newSelected = [...selectedOptions, option];
+    } else {
+      newSelected = selectedOptions.filter(item => item !== option);
+    }
+    
+    setSelectedOptions(newSelected);
+    validateField(newSelected);
+    
+    // Submit as comma-separated string
+    if (submitValue) {
+      submitValue(element.id, newSelected.join(","));
+    }
   };
 
   return (
     <div className="flex flex-col gap-2 w-full">
-      <div className="flex flex-row gap-2 items-center">
-        <Checkbox
-          checked={checked}
-          onCheckedChange={(checked) => handleChange(!!checked)}
-          className={cn(error && "border-red-500")}
-        />
-        <Label className={cn(error && "text-red-500")}>
-          {label}
-          {required && <span className="text-red-500 ml-1">*</span>}
-        </Label>
+      <Label className={cn(error && "text-red-500")}>
+        {label}
+        {required && <span className="text-red-500 ml-1">*</span>}
+      </Label>
+      <div className="flex flex-col gap-2">
+        {options.map((option, index) => (
+          <div key={index} className="flex items-center space-x-2">
+            <Checkbox
+              checked={selectedOptions.includes(option)}
+              onCheckedChange={(checked) => handleChange(option, !!checked)}
+              id={`${element.id}-${option}-${index}`}
+              className={cn(error && "border-red-500")}
+            />
+            <Label
+              htmlFor={`${element.id}-${option}-${index}`}
+              className={cn("text-sm font-normal cursor-pointer", error && "text-red-500")}
+            >
+              {option}
+            </Label>
+          </div>
+        ))}
       </div>
       {error ? (
-        <p className="text-red-500 text-[0.8rem] ml-6">{error}</p>
+        <p className="text-red-500 text-[0.8rem]">{error}</p>
       ) : (
-        helperText && <p className="text-muted-foreground text-[0.8rem] ml-6">{helperText}</p>
+        helperText && <p className="text-muted-foreground text-[0.8rem]">{helperText}</p>
       )}
     </div>
   );
@@ -149,6 +187,7 @@ function FormComponent({
 function PropertiesComponent({ elementInstance }: { elementInstance: FormElementInstance }) {
   const element = elementInstance as CustomInstance;
   const { updateElement } = useDesigner();
+  const [optionsInput, setOptionsInput] = useState(element.extraAttributes.options.join(", "));
 
   const form = useForm<PropertiesFormSchemaType>({
     resolver: zodResolver(propertiesSchema),
@@ -157,18 +196,20 @@ function PropertiesComponent({ elementInstance }: { elementInstance: FormElement
       label: element.extraAttributes.label,
       helperText: element.extraAttributes.helperText,
       required: element.extraAttributes.required,
+      options: element.extraAttributes.options,
     },
   });
 
   useEffect(() => {
     form.reset(element.extraAttributes);
+    setOptionsInput(element.extraAttributes.options.join(", "));
   }, [element, form]);
 
   const applyChanges = (values: PropertiesFormSchemaType) => {
-    const { label, helperText, required } = values;
+    const { label, helperText, required, options } = values;
     updateElement(element.id, {
       ...element,
-      extraAttributes: { label, helperText, required }
+      extraAttributes: { label, helperText, required, options }
     });
   };
 
@@ -187,11 +228,11 @@ function PropertiesComponent({ elementInstance }: { elementInstance: FormElement
             <FormItem>
               <FormLabel>Label</FormLabel>
               <FormControl>
-                <Input {...field} placeholder="Enter checkbox label"
+                <Input {...field} placeholder="Enter field label"
                   onKeyDown={(e) => { if (e.key === "Enter") e.currentTarget.blur(); }}
                 />
               </FormControl>
-              <FormDescription>The label displayed next to the checkbox</FormDescription>
+              <FormDescription>The label displayed above the checkbox group</FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -215,6 +256,35 @@ function PropertiesComponent({ elementInstance }: { elementInstance: FormElement
           )}
         />
 
+        {/* Options */}
+        <FormField
+          control={form.control}
+          name="options"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Options (comma separated)</FormLabel>
+              <FormControl>
+                <Input
+                  value={optionsInput}
+                  onChange={(e) => {
+                    setOptionsInput(e.target.value);
+                  }}
+                  onBlur={() => {
+                    const options = optionsInput.split(",").map(opt => opt.trim()).filter(opt => opt.length > 0);
+                    const finalOptions = options.length > 0 ? options : ["Option 1"];
+                    field.onChange(finalOptions);
+                    setOptionsInput(finalOptions.join(", "));
+                  }}
+                  onKeyDown={(e) => { if (e.key === "Enter") e.currentTarget.blur(); }}
+                  placeholder="Option 1, Option 2, Option 3"
+                />
+              </FormControl>
+              <FormDescription>Enter the available options separated by commas</FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
         {/* Required */}
         <FormField
           control={form.control}
@@ -223,7 +293,7 @@ function PropertiesComponent({ elementInstance }: { elementInstance: FormElement
             <FormItem className="flex items-center justify-between rounded-lg border p-3 shadow-sm">
               <div className="space-y-0.5">
                 <FormLabel>Required</FormLabel>
-                <FormDescription>Whether this checkbox must be checked</FormDescription>
+                <FormDescription>At least one option must be selected</FormDescription>
               </div>
               <FormControl>
                 <Switch checked={field.value} onCheckedChange={field.onChange} />
