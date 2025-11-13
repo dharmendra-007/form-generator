@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { ElementsType, FormElement, FormElementInstance } from "@/types/formElementType";
-import { MdRadioButtonChecked } from "react-icons/md"; 
+import { MdRadioButtonChecked } from "react-icons/md";
 import { Label } from "../ui/label";
 import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
 import useDesigner from "@/hooks/useDesigner";
@@ -132,20 +132,20 @@ function FormComponent({
         {label}
         {required && <span className="text-red-500">*</span>}
       </Label>
-      <RadioGroup 
-        value={value} 
+      <RadioGroup
+        value={value}
         onValueChange={handleValueChange}
         className={cn(error && "text-red-500", "flex flex-row flex-wrap gap-4")}
       >
         {options.map((option, index) => (
           <div key={index} className="flex items-center space-x-2">
-            <RadioGroupItem 
-              value={option} 
+            <RadioGroupItem
+              value={option}
               id={`${element.id}-${option}-${index}`}
               className={cn(error && "border-red-500")}
             />
-            <Label 
-              htmlFor={`${element.id}-${option}-${index}`} 
+            <Label
+              htmlFor={`${element.id}-${option}-${index}`}
               className={cn("text-sm font-normal cursor-pointer", error && "text-red-500")}
             >
               {option}
@@ -166,6 +166,7 @@ function FormComponent({
 function PropertiesComponent({ elementInstance }: { elementInstance: FormElementInstance }) {
   const element = elementInstance as CustomInstance;
   const { updateElement } = useDesigner();
+  const [optionsInput, setOptionsInput] = useState(element.extraAttributes.options.join(", "));
 
   const form = useForm<PropertiesFormSchemaType>({
     resolver: zodResolver(propertiesSchema),
@@ -242,11 +243,15 @@ function PropertiesComponent({ elementInstance }: { elementInstance: FormElement
               <FormLabel>Options (comma separated)</FormLabel>
               <FormControl>
                 <Input
-                  {...field}
-                  value={field.value.join(",")}
+                  value={optionsInput}
                   onChange={(e) => {
-                    const options = e.target.value.split(",").map(opt => opt.trim()).filter(opt => opt.length > 0);
-                    field.onChange(options.length > 0 ? options : ["Option 1"]);
+                    setOptionsInput(e.target.value);
+                  }}
+                  onBlur={() => {
+                    const options = optionsInput.split(",").map(opt => opt.trim()).filter(opt => opt.length > 0);
+                    const finalOptions = options.length > 0 ? options : ["Option 1"];
+                    field.onChange(finalOptions);
+                    setOptionsInput(finalOptions.join(", "));
                   }}
                   onKeyDown={(e) => { if (e.key === "Enter") e.currentTarget.blur(); }}
                   placeholder="Option 1, Option 2, Option 3"
