@@ -22,6 +22,7 @@ function FormSubmitComponent ({
   const [renderKey, setRenderKey] = useState(Date.now())
   const [submitted, setSubmitted] = useState(false)
   const [loading, setLoading] = useState<boolean>(false)
+  const formReady = Array.isArray(content) && content.length > 0
 
   const validateForm: () => boolean = useCallback(() => {
     formErrors.current = {}
@@ -78,7 +79,7 @@ function FormSubmitComponent ({
             WhatsApp Group Link
           </span>
           <a
-            href='https://chat.whatsapp.com/IvbabP4xAAkJQXHuMt5i2X?mode=wwt'
+            href='https://chat.whatsapp.com/KgxR6bYIHG7K6sBsxy0gys'
             rel='noopener'
             target='_blank'
             className='py-3 bg-green-600 text-lg text-center rounded-full'
@@ -89,33 +90,18 @@ function FormSubmitComponent ({
           </a>
           <div className='mt-4 flex justify-center'>
             <img
-              src='/images/qr.jpg'
+              src='/images/qr.png'
               alt='WhatsApp QR'
               className='w-64 h-64 object-contain rounded-xl'
             />
           </div>
         </div>
       </div>
-      // <div className="flex justify-center w-full h-screen items-center p-4">
-      //     <h2 className="text-xl font-semibold">WhatsApp Group Link</h2>
-      //     <a
-      //       href="https://chat.whatsapp.com/IvbabP4xAAkJQXHuMt5i2X?mode=wwt"
-      //       rel="noopener"
-      //       target="_blank"
-      //       className="text-blue-600 underline text-lg"
-      //     >
-      //       Click here to join the WhatsApp Group
-      //     </a>
-
-      // <div className="mt-4 flex justify-center">
-      //   <img
-      //     src="/images/qr.jpg"
-      //     alt="WhatsApp QR"
-      //     className="w-64 h-64 object-contain"
-      //   />
-      // </div>
-      // </div>
     )
+  }
+
+  if(!formReady){
+    return null
   }
 
   return (
